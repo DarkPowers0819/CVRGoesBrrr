@@ -380,11 +380,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\vibegoesbrrr-chill\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
+      "projectUniqueName": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
       "projectName": "CVRGoesBrrr",
-      "projectPath": "E:\\vibegoesbrrr-chill\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
+      "projectPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
       "packagesPath": "C:\\Users\\ryanb\\.nuget\\packages\\",
-      "outputPath": "E:\\vibegoesbrrr-chill\\vibegoesbrrr-chill\\obj\\",
+      "outputPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\obj\\",
       "projectStyle": "PackageReference",
       "skipContentFileWrite": true,
       "fallbackFolders": [

@@ -143,7 +143,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Unity\Assets\AssetBundles\assetbundle" LogicalName="assetbundle" />
     <EmbeddedResource Include="lib\IoSTIndex\devices.json" LogicalName="devices.json" />
-    <EmbeddedResource Include="rrrr.png" LogicalName="rrrr.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ILRepack.targets" />

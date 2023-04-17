@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "baHtaIYgx9m0eOHXdKsd/M7SnMwvmI3TsLs0Kki9as9Zx4qajWt/H/JTOVtlF11IkxhWO3FAkMfNAt2L23IlLg==",
+  "dgSpecHash": "Es7W80CJkKeTrmyDUDkRohzVU7xiP8BNkflYqzbzgSUOvmD2B5cHVHVbx4rRAFEbtP0Tw9G1s8HiH25IgeSrug==",
   "success": true,
-  "projectFilePath": "E:\\vibegoesbrrr-chill\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
+  "projectFilePath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ryanb\\.nuget\\packages\\buttplug\\3.0.0\\buttplug.3.0.0.nupkg.sha512",
     "C:\\Users\\ryanb\\.nuget\\packages\\buttplug.client.connectors.websocketconnector\\3.0.0\\buttplug.client.connectors.websocketconnector.3.0.0.nupkg.sha512",
