@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4059581541549803815
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 16.395
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180.00002
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 4.270651e-14
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.98978215
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.14258775
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 4.773081e-14
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.248
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504704, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.035
+      objectReference: {fileID: 0}
+    - target: {fileID: 792177315108504735, guid: ca24226df249a8745adb665395a12774,
+        type: 3}
+      propertyPath: m_Name
+      value: VibeSensor Max
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ca24226df249a8745adb665395a12774, type: 3}
