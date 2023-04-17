@@ -1,0 +1,11 @@
+﻿1. for props need to be able to switch the owner when attached/detached, needs testing
+2. documentation
+3. unit tests
+
+Warnings/Errors:
+
+Long term updates:
+1. support connecting device & loading avatar in any order
+2. looking at SetActive on all game objects just to find props. need to find a better way. this will hurt performance during world/avatar loading.
+3. need new download link in BuildInfo.cs
+4. something is causing a hanging thread that prevents the game from quiting properly, only when connected to intiface.
