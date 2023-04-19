@@ -16,5 +16,16 @@ namespace AdultToyAPI
         bool SupportsOscillate();
         bool SupportsInflate();
         bool SupportsPosition();
+
+        int MotorCount();
+        /// <summary>
+        /// returns a list of the supported motors of this device
+        /// </summary>
+        /// <returns></returns>
+        List<MotorType> GetMotorTypes();
+        /// <summary>
+        /// stop all device motors
+        /// </summary>
+        void Stop();
     }
 }

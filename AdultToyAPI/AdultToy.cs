@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Buttplug.Core.Messages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,41 @@ namespace AdultToyAPI
         public string GetName()
         {
             return Device.Name;
+        }
+
+        public int MotorCount()
+        {
+            return Device.MessageAttributes.ScalarCmd.Length;
+        }
+        public List<MotorType> GetMotorTypes()
+        {
+            List<MotorType> types = new List<MotorType>();
+            foreach(var msgInfo in Device.MessageAttributes.ScalarCmd)
+            {
+                types.Add(GetMotorTypeFromActuatorType(msgInfo.ActuatorType));
+            }
+            return types;
+        }
+
+        private MotorType GetMotorTypeFromActuatorType(Buttplug.Core.Messages.ActuatorType actuatorType)
+        {
+            switch(actuatorType)
+            {
+                case ActuatorType.Constrict:
+                    return MotorType.Constrict;
+                case ActuatorType.Inflate:
+                    return MotorType.Inflate;
+                case ActuatorType.Oscillate:
+                    return MotorType.Oscillate;
+                case ActuatorType.Position:
+                    return MotorType.Position;
+                case ActuatorType.Rotate:
+                    return MotorType.Rotate;
+                case ActuatorType.Vibrate:
+                    return MotorType.Vibrate;
+                default:
+                    return MotorType.Vibrate;
+            }
         }
 
         public bool SupportsContraction()
@@ -63,6 +99,13 @@ namespace AdultToyAPI
                 }
             }
             return false;
+        }
+        /// <summary>
+        /// stop all device motors
+        /// </summary>
+        public void Stop()
+        {
+            Device.Stop();
         }
     }
 }

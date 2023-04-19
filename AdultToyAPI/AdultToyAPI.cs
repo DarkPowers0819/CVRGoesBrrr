@@ -39,10 +39,15 @@ namespace AdultToyAPI
         // Internal Variables
         System.Timers.Timer ConnectToIntifaceTimer;
         System.Timers.Timer SendDeviceCommandsTimer;
+        System.Timers.Timer ScanForDevicesTimer;
         private ButtplugClient Buttplug = null;
         Process IntifaceProcess = null;
         bool ClosingApp = false;
         private ConcurrentQueue<ScalarSubcommand> DeviceCommandQueue = new ConcurrentQueue<ScalarSubcommand>();
+        Task DeviceScanningTask;
+        object DownloadLock = new object();
+        object RunIntifaceCLILock = new object();
+        
 
         //Public variables
         public event EventHandler<ErrorEventArgs> ErrorReceived;
@@ -66,13 +71,37 @@ namespace AdultToyAPI
             ConnectToIntifaceTimer.Enabled = true;
             ConnectToIntifaceTimer.Start();
 
-            SendDeviceCommandsTimer = new System.Timers.Timer(SecondsBetweenConnectionAttempts * 1000);
+            SendDeviceCommandsTimer = new System.Timers.Timer(DeviceCommandTimeInterval);
             SendDeviceCommandsTimer.Elapsed += SendDeviceCommands;
             SendDeviceCommandsTimer.AutoReset = true;
             SendDeviceCommandsTimer.Enabled = true;
             SendDeviceCommandsTimer.Start();
+
+
+            ScanForDevicesTimer = new System.Timers.Timer(15 * 1000);
+            ScanForDevicesTimer.Elapsed += RunScanningTask;
+            ScanForDevicesTimer.AutoReset = true;
+            ScanForDevicesTimer.Enabled = true;
+            ScanForDevicesTimer.Start();
         }
 
+        private void RunScanningTask(object sender, ElapsedEventArgs e)
+        {
+            if (Buttplug == null)
+                return;
+            if (!Buttplug.Connected)
+                return;
+            if (DeviceScanningTask == null || DeviceScanningTask.IsCompleted)
+            {
+                DeviceScanningTask = Buttplug.StartScanningAsync();
+            }
+        }
+
+        public override void OnPreferencesSaved()
+        {
+            base.OnPreferencesSaved();
+            LoadSettings();
+        }
         private void SendDeviceCommands(object sender, ElapsedEventArgs e)
         {
             try
@@ -131,34 +160,36 @@ namespace AdultToyAPI
             }
         }
 
-        private bool TryToConnectToIntiface()
+        public bool TryToConnectToIntiface()
         {
             if (ClosingApp)
                 return false;
-            if (Buttplug.Connected)
+            if (IsConnected())
             {
                 DebugLog("Disconnecting...");
                 Buttplug.DisconnectAsync();
             }
-            Buttplug = new ButtplugClient(BuildInfo.Name);
-            Buttplug.ServerDisconnect += OnButtplugServerDisconnect;
-            Buttplug.DeviceAdded += OnButtplugDeviceAdded;
-            Buttplug.DeviceRemoved += OnButtplugDeviceRemoved;
-            Buttplug.ErrorReceived += OnButtplugErrorReceived;
-
-            string ServerURI = IntifaceServerURI + ":" + IntifaceServerPort;
-
-
-
-            DebugLog($"Attempting to Connect to Intiface at {ServerURI}");
-            Uri connectionTarget = new Uri(ServerURI);
-            DebugLog("creating websocket...");
-            var buttplugWebsocket = new ButtplugWebsocketConnector(connectionTarget);
             try
             {
-                DebugLog("Connecting...");//will spam the console
-                Task t = Buttplug.ConnectAsync(buttplugWebsocket);
+                Buttplug = new ButtplugClient(BuildInfo.Name);
+                
+
+                string ServerURI = IntifaceServerURI + ":" + IntifaceServerPort+"/";
+
+                DebugLog($"Attempting to Connect to Intiface at {ServerURI}");
+                Uri connectionTarget = new Uri(ServerURI);
+                DebugLog("creating websocket...");
+                ButtplugWebsocketConnector buttplugWebsocket = new ButtplugWebsocketConnector(connectionTarget);
+            
+                Task ConnectionTask = Buttplug.ConnectAsync(buttplugWebsocket);
+                DebugLog("Connecting to "+ ServerURI);
+                ConnectionTask.Wait();
                 DebugLog("finished connecting");
+
+                Buttplug.ServerDisconnect += OnButtplugServerDisconnect;
+                Buttplug.DeviceAdded += OnButtplugDeviceAdded;
+                Buttplug.DeviceRemoved += OnButtplugDeviceRemoved;
+                Buttplug.ErrorReceived += OnButtplugErrorReceived;
             }
             catch (Exception e)
             {
@@ -199,11 +230,20 @@ namespace AdultToyAPI
         private void LaunchIntifaceCLI()
         {
             DownloadButtplugCLI();
+            StartButtplugInstance();
         }
 
         private void LoadSettings()
         {
-            throw new NotImplementedException();
+            UseEmbeddedCLI = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseEmbeddedCLI");
+            IntifaceServerURI = MelonPreferences.GetEntryValue<string>(BuildInfo.Name, "IntifaceServerURI");
+            SecondsBetweenConnectionAttempts = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "SecondsBetweenConnectionAttempts");
+            DeviceCommandTimeInterval = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "DeviceCommandTimeInterval");
+            Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
+            CLIVersion = MelonPreferences.GetEntryValue<string>(BuildInfo.Name, "CLIVersion");
+            IntifaceServerPort = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "IntifaceServerPort");
+            UseLovenseConnect = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseLovenseConnect");
+            UseBluetoothLE = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseBluetoothLE");
         }
 
         private void InitSettings()
@@ -217,9 +257,7 @@ namespace AdultToyAPI
             MelonPreferences.CreateEntry<string>(BuildInfo.Name, "CLIVersion", CLIVersion, "CLI Version", description: "CLI EXE Version", is_hidden: true);
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntifaceServerPort", IntifaceServerPort, "Intiface Server Port");
             MelonPreferences.CreateEntry(BuildInfo.Name, "UseLovenseConnect", UseLovenseConnect, "Use Lovense Connect");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "UseLovenseConnect", UseBluetoothLE, "Use Bluetooth LE");
-
-
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseBluetoothLE", UseBluetoothLE, "Use Bluetooth LE");
         }
 
         public override void OnUpdate()
@@ -244,36 +282,37 @@ namespace AdultToyAPI
         {
 
             DebugLog("Checking if Intiface needs to be updated...");
-
-            var wc = new WebClient
+            lock (DownloadLock)
             {
-                Headers = {
+                var wc = new WebClient
+                {
+                    Headers = {
                     ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0"
                 }
-            };
+                };
 
-            if (CheckForIntifaceUpdate(wc) || !File.Exists("Executables/intiface-engine.exe"))
-            {
-                DebugLog("New Intiface version detected! Downloading to Executables/intiface-engine.exe!");
-
-                try
+                if (CheckForIntifaceUpdate(wc) || !File.Exists("Executables/intiface-engine.exe"))
                 {
-                    byte[] bytes = wc.DownloadData("https://github.com/intiface/intiface-engine/releases/latest/download/intiface-engine-win-x64-Release.zip");
-                    var stream = new MemoryStream(bytes);
+                    DebugLog("New Intiface version detected! Downloading to Executables/intiface-engine.exe!");
 
-                    var zipStream = new ZipArchive(stream).GetEntry("intiface-engine.exe").Open();
-                    Directory.CreateDirectory("Executables");
-                    var file = new FileStream(ButtplugCLIPath, FileMode.Create, FileAccess.Write);
-                    zipStream.CopyTo(file);
-                    stream.Dispose();
-                    zipStream.Dispose();
-                }
-                catch (Exception e)
-                {
-                    MelonLoader.MelonLogger.Error("Failed to download Buttplug Engine. If you start multiple instances of VRC this might occur", e);
+                    try
+                    {
+                        byte[] bytes = wc.DownloadData("https://github.com/intiface/intiface-engine/releases/latest/download/intiface-engine-win-x64-Release.zip");
+                        var stream = new MemoryStream(bytes);
+
+                        var zipStream = new ZipArchive(stream).GetEntry("intiface-engine.exe").Open();
+                        Directory.CreateDirectory("Executables");
+                        var file = new FileStream(ButtplugCLIPath, FileMode.Create, FileAccess.Write);
+                        zipStream.CopyTo(file);
+                        stream.Dispose();
+                        zipStream.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        MelonLoader.MelonLogger.Error("Failed to download Buttplug Engine. If you start multiple instances of VRC this might occur", e);
+                    }
                 }
             }
-
 
         }
         private bool CheckForIntifaceUpdate(WebClient client)
@@ -303,53 +342,68 @@ namespace AdultToyAPI
 
             return false;
         }
+        bool IsIntifaceCentralRunning()
+        {
+            foreach (var item in Process.GetProcesses())
+            {
+                try
+                {
+                    if (item.ProcessName == "intiface_central.exe")
+                    {
+                        return true;
+                    }
+                }
+                catch (Exception)
+                {
+                    MelonLoader.MelonLogger.Error("Error while retrieving Processname of running application");
+                }
+            }
+            return false;
+        }
+        private void ShutdownIntifaceCLI()
+        {
+            IntifaceProcess.Kill();
+        }
         public void StartButtplugInstance()
         {
             try
             {
-                foreach (var item in Process.GetProcesses())
+                lock (RunIntifaceCLILock)
                 {
-                    try
+                    if(IsIntifaceCentralRunning())
                     {
-                        if (item.ProcessName == "intiface_central.exe")
-                        {
-                            MelonLoader.MelonLogger.Error("Intiface Central running. Using running instance");
-                            return;
-                        }
+                        MelonLoader.MelonLogger.Error("Intiface Central running. Using running instance");
+                        return;
                     }
-                    catch (Exception)
+                    if(IntifaceProcess!=null && IntifaceProcess.HasExited==false)
                     {
-                        MelonLoader.MelonLogger.Error("Error while retrieving Processname of running application");
+                        return;
                     }
+                    FileInfo target = new FileInfo(ButtplugCLIPath);
+                    
+                    string options = "";
+                    if (UseLovenseConnect)
+                    {
+                        options += "--use-lovense-connect ";
+                    }
+                    if (UseBluetoothLE)
+                    {
+                        options += "--use-bluetooth-le ";
+                    }
+                    options += $" --websocket-port {IntifaceServerPort}";
+                    var startInfo = new ProcessStartInfo(target.FullName, options);
+                    startInfo.UseShellExecute = true;
+                    startInfo.WorkingDirectory = Environment.CurrentDirectory;
+                    //startInfo.RedirectStandardError = true;
+                    //startInfo.RedirectStandardOutput = true;
 
+                    IntifaceProcess = Process.Start(startInfo);
+                    IntifaceProcess.EnableRaisingEvents = true;
+                    IntifaceProcess.OutputDataReceived += (sender, args) => DebugLog(args.Data);
+                    IntifaceProcess.ErrorDataReceived += (sender, args) => MelonLoader.MelonLogger.Error(args.Data);
+
+                    //IntifaceProcess.Exited += (_, _2) => StartButtplugInstance();
                 }
-
-                FileInfo target = new FileInfo(ButtplugCLIPath);
-
-                //TODO: Find a better way to handle Intiface, this is still scuffed... WHY CAN'T WE GET THE DATA AND HAVE IT WORK
-                string options = "";
-                if (UseLovenseConnect)
-                {
-                    options += "--use-lovense-connect ";
-                }
-                if (UseBluetoothLE)
-                {
-                    options += "--use-bluetooth-le ";
-                }
-                options += $" --websocket-port {IntifaceServerPort}";
-                var startInfo = new ProcessStartInfo(target.FullName, options);
-                startInfo.UseShellExecute = true;
-                startInfo.WorkingDirectory = Environment.CurrentDirectory;
-                //startInfo.RedirectStandardError = true;
-                //startInfo.RedirectStandardOutput = true;
-
-                IntifaceProcess = Process.Start(startInfo);
-                IntifaceProcess.EnableRaisingEvents = true;
-                IntifaceProcess.OutputDataReceived += (sender, args) => DebugLog(args.Data);
-                IntifaceProcess.ErrorDataReceived += (sender, args) => MelonLoader.MelonLogger.Error(args.Data);
-
-                //IntifaceProcess.Exited += (_, _2) => StartButtplugInstance();
-
             }
             catch (Exception ex)
             {
@@ -361,9 +415,12 @@ namespace AdultToyAPI
         public List<IAdultToy> GetConnectedDevices()
         {
             List<IAdultToy> devicesToReturn = new List<IAdultToy>();
-            foreach (var device in Buttplug.Devices)
+            if (IsConnected())
             {
-                devicesToReturn.Add(new AdultToy(device));
+                foreach (var device in Buttplug.Devices)
+                {
+                    devicesToReturn.Add(new AdultToy(device));
+                }
             }
             return devicesToReturn;
         }

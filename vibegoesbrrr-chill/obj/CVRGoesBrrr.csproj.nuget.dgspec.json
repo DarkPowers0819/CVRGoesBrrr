@@ -4,6 +4,21 @@
     "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj": {}
   },
   "projects": {
+    "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
+      "restore": {
+        "projectUniqueName": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj",
+        "projectName": "AdultToyAPI",
+        "projectPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj",
+        "frameworks": {
+          "net472": {
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "net472": {}
+      }
+    },
     "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -33,21 +48,17 @@
         },
         "frameworks": {
           "net472": {
-            "projectReferences": {}
+            "projectReferences": {
+              "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
+                "projectPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj"
+              }
+            }
           }
         }
       },
       "frameworks": {
         "net472": {
           "dependencies": {
-            "Buttplug": {
-              "target": "Package",
-              "version": "[3.0.0, )"
-            },
-            "Buttplug.Client.Connectors.WebsocketConnector": {
-              "target": "Package",
-              "version": "[3.0.0, )"
-            },
             "ILRepack": {
               "target": "Package",
               "version": "[2.1.0-beta1, )"

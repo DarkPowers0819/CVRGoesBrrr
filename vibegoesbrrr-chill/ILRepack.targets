@@ -10,7 +10,7 @@
       Parallel="true"
       DebugInfo="true"
       AllowDuplicateResources="false"
-      InputAssemblies="$(OutputPath)CVRGoesBrrr.dll;$(OutputPath)Buttplug.dll;$(OutputPath)deniszykov.WebSocketListener.dll;$(OutputPath)Buttplug.Client.Connectors.WebsocketConnector.dll;$(OutputPath)System.Threading.Tasks.Dataflow.dll"
+      InputAssemblies="$(OutputPath)CVRGoesBrrr.dll;"
       LibraryPath="lib\;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader\Managed"
       TargetKind="SameAsPrimaryAssembly"
       KeyFile="$(KeyFile)"

@@ -1,10 +1,8 @@
-﻿using Buttplug.Client;
-using MelonLoader;
+﻿using MelonLoader;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Buttplug.Client.Connectors.WebsocketConnector;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,15 +14,14 @@ using UnityEngine;
 using static MelonLoader.MelonLogger;
 using static VibeGoesBrrr.Util;
 using System.Threading;
-using static Buttplug.Core.Messages.ScalarCmd;
 using System.Timers;
+using AdultToyAPI;
 
 namespace VibeGoesBrrr
 {
     public class VibeGoesBrrrMod : MelonMod
     {
         private bool Active = true;
-        private bool ClosingApp = false;
         private bool TouchEnabled = true;
         private bool EnableBLERateLimit = false;
         private int BLERateLmit = 50;
@@ -43,25 +40,24 @@ namespace VibeGoesBrrr
         private float ScanWaitDuration = 5f;
         private bool SetupMode = false;
         private bool XSOverlayNotifications = true;
-        private System.Timers.Timer ConnectionRetryTimer;
         private System.Timers.Timer BackgroundProcessingTimer;
         private AssetBundle Bundle;
         private Shader Shader;
         private GameObject OrthographicFrustum;
-        private ButtplugClient Buttplug = null;
         private Task ScanTask = Task.CompletedTask;
         private int mMaxSeenDevices = 0;
-        private Dictionary<uint, float[]> DeviceIntensities = new Dictionary<uint, float[]>();
+        private Dictionary<int, float[]> DeviceIntensities = new Dictionary<int, float[]>();
         private HashSet<Sensor> TouchAndThrustSensors = new HashSet<Sensor>();
         private HashSet<Sensor> FeedbackSensors = new HashSet<Sensor>();
         private HashSet<Sensor> ExpressionSensors = new HashSet<Sensor>();
         private TouchZoneProvider SensorManager;
         private ThrustVectorProvider ThrustVectorManager;
-        ButtplugWebsocketConnector buttplugWebsocket;// = new ButtplugWebsocketConnector(connectionTarget);
         // private AudioProvider mAudioProvider;
         private DeviceSensorBinder Binder;
         // private ExpressionParam<float> mGlobalParam;
         private XSNotify XSNotify;
+        private IAdultToyAPI ToyAPI;
+
         public override void OnApplicationStart()
         {
             XSNotify = XSNotify.Create();
@@ -115,12 +111,6 @@ namespace VibeGoesBrrr
             Binder.BindingRemoved += OnBindingRemoved;
             Binder.AddSensorProvider(SensorManager);
             Binder.AddSensorProvider(ThrustVectorManager);
-            // mBinder.AddSensorProvider(mAudioProvider);
-            ConnectionRetryTimer = new System.Timers.Timer(20 * 1000);
-            ConnectionRetryTimer.Elapsed += ConnectionRetryTimer_Elapsed;
-            ConnectionRetryTimer.AutoReset = true;
-            ConnectionRetryTimer.Enabled = true;
-            ConnectionRetryTimer.Start();
 
             CreateBackgroundProcessingTimer();
 
@@ -148,100 +138,46 @@ namespace VibeGoesBrrr
 
         private void BackgroundProcessingTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            if (ToyAPI == null)
+            {
+                foreach (var melon in MelonMod.RegisteredMelons)
+                {
+                    if(melon is IAdultToyAPI)
+                    {
+                        ToyAPI = (IAdultToyAPI)melon;
+                        ToyAPI.DeviceAdded += ToyAPI_DeviceAdded;
+                        ToyAPI.DeviceRemoved += ToyAPI_DeviceRemoved;
+                        ToyAPI.ErrorReceived += ToyAPI_ErrorReceived;
+                        ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
+                    }
+                }
+            }
+            if(ToyAPI==null)
+            {
+                return;
+            }
             ProcessSensorsAndVibrateDevices();
         }
 
-        private void ConnectionRetryTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void ToyAPI_ServerDisconnect(object sender, ServerDisconnectEventArgs e)
         {
-            StartConnectionTask();
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Nothing needed here at the moment
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToyAPI_ErrorReceived(object sender, AdultToyAPI.ErrorEventArgs e)
+        {
         }
 
-        private void OnBindingRemoved(object sender, (ButtplugClientDevice Device, Sensor Sensor, int? Feature) e)
-        {
-            if (e.Sensor.OwnerType == SensorOwnerType.LocalPlayer)
-            {
-                Msg($"Device \"{e.Device.Name}\" unbound from sensor \"{e.Sensor.Name}\"");
-            }
-            else
-            {
-                DebugLog($"Device \"{e.Device.Name}\" unbound from {e.Sensor.OwnerType} sensor \"{e.Sensor.Name}\"");
-            }
-            _ = e.Device?.Stop();
-            //mDeviceBattery.TryRemove(e.Device.Index, out double _); not needed?
-        }
-
-        private void OnBindingAdded(object sender, (ButtplugClientDevice Device, Sensor Sensor, int? Feature) e)
-        {
-            if (e.Sensor.OwnerType == SensorOwnerType.LocalPlayer)
-            {
-                // Send a lil' doot-doot 🎺 when successfully bound!
-                DootDoot(e.Device);
-                Msg($"Device \"{e.Device.Name}\" bound to sensor \"{e.Sensor.Name}\"");
-            }
-            else
-            {
-                Util.DebugLog($"Device \"{e.Device.Name}\" bound to {e.Sensor.OwnerType} sensor \"{e.Sensor.Name}\"");
-            }
-        }
-
-        public override void OnApplicationQuit()
-        {
-            Util.DebugLog("On Quit Application");
-            ClosingApp = true;
-            ConnectionRetryTimer.Stop();
-            ConnectionRetryTimer.Dispose();
-            if (Buttplug.Connected)
-            {
-                Application.CancelQuit();
-                DisconnectButtPlugClient();
-            }
-            Util.DebugLog("Ready To Quit Application");
-        }
-        private void LogTaskStatus(Task t, string message)
-        {
-            if (!t.IsCompleted || !t.IsFaulted)
-                return;
-            Util.Error("Task - " + message + " has faulted");
-            Error(t.Exception);
-        }
-        public void InitializeButtplugClient()
+        private void ToyAPI_DeviceRemoved(object sender, AdultToyAPI.DeviceRemovedEventArgs e)
         {
             try
             {
-                DebugLog("Initializing Buttplug client");// will spam the log
-                if (Buttplug != null)
-                {
-                    //Buttplug.Dispose();
-                }
-
-                Buttplug = new ButtplugClient(BuildInfo.Name);
-                Buttplug.ServerDisconnect += OnButtplugServerDisconnect;
-                Buttplug.DeviceAdded += OnButtplugDeviceAdded;
-                Buttplug.DeviceRemoved += OnButtplugDeviceRemoved;
-                Buttplug.ErrorReceived += OnButtplugErrorReceived;
-
-
-                Binder.SetButtplugClient(Buttplug);
-
-                ConnectButtplugClient();
-            }
-            catch (Exception e)
-            {
-                Error("error connecting to intiface central", e);
-            }
-        }
-
-        private void OnButtplugErrorReceived(object sender, Buttplug.Core.ButtplugExceptionEventArgs e)
-        {
-            Warning($"Device error: {e.Exception.Message}");
-        }
-
-        private void OnButtplugDeviceRemoved(object sender, DeviceRemovedEventArgs e)
-        {
-            try
-            {
-                DeviceIntensities.Remove(e.Device.Index);
-                Msg($"Device \"{e.Device.Name}\" disconnected");
+                DeviceIntensities.Remove(e.AdultToy.GetIndex());
+                Msg($"Device \"{e.AdultToy.GetName()}\" disconnected");
             }
             catch (Exception error)
             {
@@ -249,45 +185,28 @@ namespace VibeGoesBrrr
             }
         }
 
-        private void OnButtplugDeviceAdded(object sender, DeviceAddedEventArgs e)
+        private void ToyAPI_DeviceAdded(object sender, AdultToyAPI.DeviceAddedEventArgs e)
         {
             try
             {
-                mMaxSeenDevices = Math.Max(mMaxSeenDevices, Buttplug.Devices.Length);
-                var motorCount = e.Device.MessageAttributes.ScalarCmd.Length;
-                if (e.Device.MessageAttributes.ScalarCmd.Length > 0)
+                mMaxSeenDevices = Math.Max(mMaxSeenDevices, e.AdultToy.GetIndex());
+                var motorCount = e.AdultToy.MotorCount();
+                if (motorCount > 0)
                 {
-                    DeviceIntensities[e.Device.Index] = new float[motorCount];
-                }
-
-
-                double? battery = null;
-                if (e.Device.HasBattery)
-                {
-                    //Task<double> batteryTask = e.Device.BatteryAsync();
-                    //batteryTask.Wait();
-                    //if (batteryTask.IsCompleted && !batteryTask.IsFaulted)
-                    //{
-                    //    battery = batteryTask.Result;
-                    //}
+                    DeviceIntensities[e.AdultToy.GetIndex()] = new float[motorCount];
                 }
 
                 string message;
-                if (battery != null)
-                {
-                    message = $"Device \"{e.Device.Name}\" connected ({Math.Round((double)battery * 100)}%)";
-                }
-                else
-                {
-                    message = $"Device \"{e.Device.Name}\" connected";
-                }
+                
+                message = $"Device \"{e.AdultToy.GetName()}\" connected";
+                
                 var supporting = new List<string>();
 
 
                 if (motorCount > 0)
                 {
                     supporting.Add($"{motorCount} vibration motor{(motorCount > 1 ? "s" : "")}");
-                    DeviceIntensities[e.Device.Index] = new float[motorCount];
+                    DeviceIntensities[e.AdultToy.GetIndex()] = new float[motorCount];
                 }
 
 
@@ -301,21 +220,14 @@ namespace VibeGoesBrrr
                 }
                 Msg(message);
 
-                DebugLog($"{e.Device.Name} supports the following messages:");
-                foreach (var msgInfo in e.Device.MessageAttributes.ScalarCmd)
+                DebugLog($"{e.AdultToy.GetName()} supports the following messages:");
+                foreach (var msgInfo in e.AdultToy.GetMotorTypes())
                 {
-                    DebugLog($"- {msgInfo.ActuatorType.ToString()} {msgInfo.FeatureDescriptor}");
+                    DebugLog($"- {msgInfo.ToString()}");
                 }
 
 
-                if (battery != null)
-                {
-                    Notify($"<b>{e.Device.Name}</b> connected ({Math.Round((double)battery * 100)}%)");
-                }
-                else
-                {
-                    Notify($"<b>{e.Device.Name}</b> connected");
-                }
+                Notify($"<b>{e.AdultToy.GetName()}</b> connected");
             }
             catch (Exception error)
             {
@@ -323,47 +235,44 @@ namespace VibeGoesBrrr
             }
         }
 
-        private void OnButtplugServerDisconnect(object sender, EventArgs e)
+
+        private void OnBindingRemoved(object sender, (IAdultToy Device, Sensor Sensor, int? Feature) e)
         {
-            try
+            if (e.Sensor.OwnerType == SensorOwnerType.LocalPlayer)
             {
-                Warning($"Lost connection to Buttplug server!");
-                Buttplug.DisconnectAsync();
+                Msg($"Device \"{e.Device.GetName()}\" unbound from sensor \"{e.Sensor.Name}\"");
             }
-            catch (Exception error)
+            else
             {
-                Error("On Server Disconnect", error);
+                DebugLog($"Device \"{e.Device.GetName()}\" unbound from {e.Sensor.OwnerType} sensor \"{e.Sensor.Name}\"");
+            }
+            e.Device?.Stop();
+            //mDeviceBattery.TryRemove(e.Device.Index, out double _); not needed?
+        }
+
+        private void OnBindingAdded(object sender, (IAdultToy Device, Sensor Sensor, int? Feature) e)
+        {
+            if (e.Sensor.OwnerType == SensorOwnerType.LocalPlayer)
+            {
+                // Send a lil' doot-doot 🎺 when successfully bound!
+                DootDoot(e.Device);
+                Msg($"Device \"{e.Device.GetName()}\" bound to sensor \"{e.Sensor.Name}\"");
+            }
+            else
+            {
+                Util.DebugLog($"Device \"{e.Device.GetName()}\" bound to {e.Sensor.OwnerType} sensor \"{e.Sensor.Name}\"");
             }
         }
 
-        private void ConnectButtplugClient()
+        
+        private void LogTaskStatus(Task t, string message)
         {
-            if (Buttplug == null || ClosingApp)
+            if (!t.IsCompleted || !t.IsFaulted)
                 return;
-            if (Buttplug.Connected)
-            {
-                DebugLog("Disconnecting...");
-                Buttplug.DisconnectAsync();
-            }
-            Msg($"Attempting to Connect to Intiface at {ServerURI}");
-            Uri connectionTarget = new Uri(ServerURI);
-            DebugLog("creating websocket...");//will spam the console
-
-            //ButtplugWebsocketConnector conn = null;
-            buttplugWebsocket = new ButtplugWebsocketConnector(connectionTarget);
-            try
-            {
-                DebugLog("Connecting...");//will spam the console
-                Task t = Buttplug.ConnectAsync(buttplugWebsocket);
-
-                DebugLog("finished connecting");
-            }
-            catch (Exception e)
-            {
-                Error("unable to connect to intiface central", e);
-                //await Task.Delay(5000);
-            }
+            Util.Error("Task - " + message + " has faulted");
+            Error(t.Exception);
         }
+
 
         void LoadAssets()
         {
@@ -468,54 +377,7 @@ namespace VibeGoesBrrr
             FeedbackSensors.Remove(sensor);
             DebugLog($"Lost sensor {sensor.Name} in {sensor.OwnerType.ToString()}");
         }
-
-        /// <summary>
-        /// unknown why this is starting and stopping the scanning.
-        /// </summary>
-        /// <returns></returns>
-        private async Task Scan()
-        {
-            await Task.Delay((int)(ScanWaitDuration * 1000));
-            // DebugLog("Starting scan...");
-            await Buttplug.StartScanningAsync();
-            await Task.Delay((int)(ScanDuration * 1000));
-            // DebugLog("Stopping scan.");
-            await Buttplug.StopScanningAsync();
-
-        }
-        private void StartConnectionTask()
-        {
-            Util.DebugLog("background maintain buttplug connection");
-            if (Active)
-            {
-                if (Buttplug == null || !Buttplug.Connected)
-                {
-                    Util.DebugLog("buttplug not connected, connecting....");
-                    InitializeButtplugClient();
-                }
-            }
-            else
-            {
-                if (Buttplug != null && Buttplug.Connected)
-                {
-                    DisconnectButtPlugClient();
-                }
-            }
-
-        }
-
-        private void DisconnectButtPlugClient()
-        {
-            Msg($"Disconnecting from Intiface at {ServerURI}");
-            foreach (var device in Buttplug.Devices)
-            {
-                device.Stop();
-            }
-            buttplugWebsocket.DisconnectAsync();
-            Buttplug.DisconnectAsync();
-            Buttplug.Dispose();
-        }
-
+        
         private void ProcessSensorsAndVibrateDevices()
         {
             //Util.DebugLog("background thread");
@@ -526,17 +388,7 @@ namespace VibeGoesBrrr
                 //Util.DebugLog("pre Binder");
                 Binder.OnUpdate();
 
-                if (Buttplug == null || ClosingApp) return;
-                if (!Buttplug.Connected)
-                {
-                    return;
-                }
-                //Util.DebugLog("background maintain scan task");
-                // Scan forever!!!
-                if (ScanTask == null || ScanTask.IsCompleted)
-                {
-                    ScanTask = Scan();
-                }
+                if (ToyAPI == null ) return;
 
                 //Util.DebugLog("ThrustVectorManager");
                 ThrustVectorManager.OnUpdate();
@@ -554,23 +406,25 @@ namespace VibeGoesBrrr
         }
         private void DriveDevices(HashSet<Sensor> activeSensors)
         {
-            var deviceIntensities = new Dictionary<uint, float?[]>();
-            foreach (var device in Buttplug.Devices)
+            var deviceIntensities = new Dictionary<int, float?[]>();
+            List<IAdultToy> Devices = ToyAPI.GetConnectedDevices();
+            foreach (var device in Devices)
             {
-                if (device.MessageAttributes.ScalarCmd.Length > 0)
+                int deviceMotorCount = device.MotorCount();
+                if (deviceMotorCount > 0)
                 {
-                    uint motorCount = (uint)device.MessageAttributes.ScalarCmd.Length;
-                    deviceIntensities[device.Index] = new float?[motorCount];
+                    int motorCount = deviceMotorCount;
+                    deviceIntensities[device.GetIndex()] = new float?[motorCount];
                 }
             }
 
             // Idle intensities
             if (mIdleEnabled)
             {
-                foreach (var device in Buttplug.Devices)
+                foreach (var device in Devices)
                 {
-                    if (!deviceIntensities.ContainsKey(device.Index)) continue;
-                    var motorIntensities = deviceIntensities[device.Index];
+                    if (!deviceIntensities.ContainsKey(device.GetIndex())) continue;
+                    var motorIntensities = deviceIntensities[device.GetIndex()];
                     for (int motorIndex = 0; motorIndex < motorIntensities.Length; motorIndex++)
                     {
                         motorIntensities[motorIndex] = Mathf.Clamp(mIdleIntensity / 100, 0, 1);
@@ -585,9 +439,9 @@ namespace VibeGoesBrrr
                 {
                     var device = kv.Key;
                     var bindings = kv.Value;
-                    if (!deviceIntensities.ContainsKey(device.Index)) continue;
+                    if (!deviceIntensities.ContainsKey(device.GetIndex())) continue;
 
-                    var motorIntensities = deviceIntensities[device.Index];
+                    var motorIntensities = deviceIntensities[device.GetIndex()];
                     foreach (var (sensor, featureIndex) in bindings)
                     {
                         if (!TouchAndThrustSensors.Contains(sensor)) continue;
@@ -624,38 +478,29 @@ namespace VibeGoesBrrr
             }
             List<Task> commands = new List<Task>();
             // Send device commands
-            foreach (var device in Buttplug.Devices)
+            foreach (var device in ToyAPI.GetConnectedDevices())
             {
-                if (!deviceIntensities.ContainsKey(device.Index)) continue;
-
+                var motorTypes = device.GetMotorTypes();
+                if (!deviceIntensities.ContainsKey(device.GetIndex())) continue;
                 // Refrain from updating with the same values, since this seems to increase the chance of device hangs
-                var motorIntensityValues = Array.ConvertAll(deviceIntensities[device.Index], i => i ?? 0);
-                if (!motorIntensityValues.SequenceEqual(DeviceIntensities[device.Index]))
+                var motorIntensityValues = Array.ConvertAll(deviceIntensities[device.GetIndex()], i => i ?? 0);
+                if (!motorIntensityValues.SequenceEqual(DeviceIntensities[device.GetIndex()]))
                 {
-                    List<ScalarSubcommand> subCommands = new List<ScalarSubcommand>();
-                    // VIBRATE!!!
+                    
                     for (int motorIndex = 0; motorIndex < motorIntensityValues.Length; motorIndex++)
                     {
-                        ScalarSubcommand subCommand = new ScalarSubcommand(
-                            device.MessageAttributes.ScalarCmd[motorIndex].Index,
-                            motorIntensityValues[motorIndex],
-                            device.MessageAttributes.ScalarCmd[motorIndex].ActuatorType);
-                        //subCommands.Add();
-                        device.ScalarAsync(subCommand);
-                        Util.DebugLog($"{device.Name}-{device.MessageAttributes.ScalarCmd[motorIndex].ActuatorType}: {motorIntensityValues[0]}");
+
+                        ToyAPI.SetMotorSpeed(device, motorTypes[motorIndex], motorIntensityValues[motorIndex]);
+                        Util.DebugLog($"{device.GetName()}-{motorTypes[motorIndex].ToString()}: {motorIntensityValues[0]}");
                         if (EnableBLERateLimit)
                         {
                             Thread.Sleep(Math.Min(Math.Max(BLERateLmit, 0), 200));
                         }
                     }
                     //commands.Add(device.ScalarAsync(subCommands));
-                    DeviceIntensities[device.Index] = motorIntensityValues;
+                    DeviceIntensities[device.GetIndex()] = motorIntensityValues;
 
                 }
-            }
-            foreach (var t in commands)
-            {
-                // t.Wait();
             }
         }
         private void DisableInactiveSensors(HashSet<Sensor> activeSensors)
@@ -767,19 +612,6 @@ namespace VibeGoesBrrr
             // Subtract potential idle intensity so the sensor alpha acts fully in the remaining range
             return (motorIntensities[motorIndex] ?? 0f) + intensityCurve * Math.Max(0f, Math.Min(MaxIntensity / 100f - (motorIntensities[motorIndex] ?? 0f), 1f));
         }
-        public override void OnUpdate()
-        {
-            try
-            {
-
-                //Util.DebugLog("pre reset one shot preferences");
-                ResetOneShotPreferences();
-            }
-            catch (Exception e)
-            {
-                Error("OnUpdate", e);
-            }
-        }
 
         private OrthographicFrustum AddFrustumIfMissing(Sensor sensor)
         {
@@ -846,29 +678,18 @@ namespace VibeGoesBrrr
             }
             SetupMode = setupMode;
         }
-        /// <summary>
-        /// Reset one-shot preferences since we can't do this in OnPreferencesSaved without risking an infinite loop when a pref is pinned
-        /// </summary>
-        public void ResetOneShotPreferences()
-        {
-            if (MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "RestartIntiface"))
-            {
-                MelonPreferences.SetEntryValue(BuildInfo.Name, "RestartIntiface", false);
-                Buttplug.DisconnectAsync();
-            }
-        }
 
-        async void DootDoot(ButtplugClientDevice device)
+        async void DootDoot(IAdultToy device)
         {
             try
             {
-                await device.VibrateAsync(0.15);
+                ToyAPI.SetMotorSpeed(device, MotorType.Vibrate, 0.15f);
                 await Task.Delay(150);
-                await device.VibrateAsync(0);
+                ToyAPI.SetMotorSpeed(device, MotorType.Vibrate, 0.0f);
                 await Task.Delay(150);
-                await device.VibrateAsync(0.15);
+                ToyAPI.SetMotorSpeed(device, MotorType.Vibrate, 0.15f);
                 await Task.Delay(150);
-                await device.VibrateAsync(0);
+                ToyAPI.SetMotorSpeed(device, MotorType.Vibrate, 0.0f);
             }
             catch { }
         }

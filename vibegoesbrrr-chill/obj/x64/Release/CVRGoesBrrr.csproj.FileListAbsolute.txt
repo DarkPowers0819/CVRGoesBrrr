@@ -36,3 +36,7 @@ E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\MelonLoader.xml
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.CoreCompileInputs.cache
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.CopyComplete
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.AssemblyReference.cache
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AdultToyAPI.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AdultToyAPI.pdb
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\System.Threading.Tasks.Dataflow.xml

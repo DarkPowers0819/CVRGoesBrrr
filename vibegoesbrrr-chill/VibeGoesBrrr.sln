@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdultToyAPI", "..\AdultToyAPI\AdultToyAPI.csproj", "{9CC08F07-3C12-497B-87A0-789597F8C5DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "..\Testing\Testing.csproj", "{76747D25-8799-45EF-9B47-8B39EC03908E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,14 @@ Global
 		{9CC08F07-3C12-497B-87A0-789597F8C5DD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9CC08F07-3C12-497B-87A0-789597F8C5DD}.Release|x64.ActiveCfg = Release|Any CPU
 		{9CC08F07-3C12-497B-87A0-789597F8C5DD}.Release|x64.Build.0 = Release|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Debug|x64.Build.0 = Debug|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Release|x64.ActiveCfg = Release|Any CPU
+		{76747D25-8799-45EF-9B47-8B39EC03908E}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

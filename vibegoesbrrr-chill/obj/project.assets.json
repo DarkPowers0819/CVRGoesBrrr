@@ -2,42 +2,6 @@
   "version": 3,
   "targets": {
     ".NETFramework,Version=v4.7.2": {
-      "Buttplug/3.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.CSharp": "4.7.0",
-          "Newtonsoft.Json": "13.0.2"
-        },
-        "compile": {
-          "lib/netstandard2.0/Buttplug.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Buttplug.dll": {}
-        }
-      },
-      "Buttplug.Client.Connectors.WebsocketConnector/3.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Buttplug": "3.0.0",
-          "System.Threading.Tasks.Dataflow": "7.0.0",
-          "deniszykov.WebSocketListener": "4.2.15"
-        },
-        "compile": {
-          "lib/netstandard2.0/Buttplug.Client.Connectors.WebsocketConnector.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Buttplug.Client.Connectors.WebsocketConnector.dll": {}
-        }
-      },
-      "deniszykov.WebSocketListener/4.2.15": {
-        "type": "package",
-        "compile": {
-          "lib/net45/deniszykov.WebSocketListener.dll": {}
-        },
-        "runtime": {
-          "lib/net45/deniszykov.WebSocketListener.dll": {}
-        }
-      },
       "ILRepack/2.1.0-beta1": {
         "type": "package"
       },
@@ -45,18 +9,6 @@
         "type": "package",
         "build": {
           "build/ILRepack.Lib.MSBuild.Task.targets": {}
-        }
-      },
-      "Microsoft.CSharp/4.7.0": {
-        "type": "package",
-        "frameworkAssemblies": [
-          "Microsoft.CSharp"
-        ],
-        "compile": {
-          "ref/net45/_._": {}
-        },
-        "runtime": {
-          "lib/net45/_._": {}
         }
       },
       "Newtonsoft.Json/13.0.2": {
@@ -68,56 +20,17 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "System.Threading.Tasks.Dataflow/7.0.0": {
-        "type": "package",
+      "AdultToyAPI/1.0.0": {
+        "type": "project",
         "compile": {
-          "lib/net462/System.Threading.Tasks.Dataflow.dll": {}
+          "bin/placeholder/AdultToyAPI.dll": {}
         },
         "runtime": {
-          "lib/net462/System.Threading.Tasks.Dataflow.dll": {}
-        },
-        "build": {
-          "buildTransitive/net462/_._": {}
+          "bin/placeholder/AdultToyAPI.dll": {}
         }
       }
     },
     ".NETFramework,Version=v4.7.2/win-x64": {
-      "Buttplug/3.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.CSharp": "4.7.0",
-          "Newtonsoft.Json": "13.0.2"
-        },
-        "compile": {
-          "lib/netstandard2.0/Buttplug.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Buttplug.dll": {}
-        }
-      },
-      "Buttplug.Client.Connectors.WebsocketConnector/3.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Buttplug": "3.0.0",
-          "System.Threading.Tasks.Dataflow": "7.0.0",
-          "deniszykov.WebSocketListener": "4.2.15"
-        },
-        "compile": {
-          "lib/netstandard2.0/Buttplug.Client.Connectors.WebsocketConnector.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Buttplug.Client.Connectors.WebsocketConnector.dll": {}
-        }
-      },
-      "deniszykov.WebSocketListener/4.2.15": {
-        "type": "package",
-        "compile": {
-          "lib/net45/deniszykov.WebSocketListener.dll": {}
-        },
-        "runtime": {
-          "lib/net45/deniszykov.WebSocketListener.dll": {}
-        }
-      },
       "ILRepack/2.1.0-beta1": {
         "type": "package"
       },
@@ -125,18 +38,6 @@
         "type": "package",
         "build": {
           "build/ILRepack.Lib.MSBuild.Task.targets": {}
-        }
-      },
-      "Microsoft.CSharp/4.7.0": {
-        "type": "package",
-        "frameworkAssemblies": [
-          "Microsoft.CSharp"
-        ],
-        "compile": {
-          "ref/net45/_._": {}
-        },
-        "runtime": {
-          "lib/net45/_._": {}
         }
       },
       "Newtonsoft.Json/13.0.2": {
@@ -148,66 +49,18 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "System.Threading.Tasks.Dataflow/7.0.0": {
-        "type": "package",
+      "AdultToyAPI/1.0.0": {
+        "type": "project",
         "compile": {
-          "lib/net462/System.Threading.Tasks.Dataflow.dll": {}
+          "bin/placeholder/AdultToyAPI.dll": {}
         },
         "runtime": {
-          "lib/net462/System.Threading.Tasks.Dataflow.dll": {}
-        },
-        "build": {
-          "buildTransitive/net462/_._": {}
+          "bin/placeholder/AdultToyAPI.dll": {}
         }
       }
     }
   },
   "libraries": {
-    "Buttplug/3.0.0": {
-      "sha512": "sMGmj0ARNwA7TINPkRk53hHVkPnYWHi+SqNsDtDLofBTKeYL18eFrRBYBZR/+E5JgYwuSMUpvWS0YT2R3peOCg==",
-      "type": "package",
-      "path": "buttplug/3.0.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE",
-        "README.md",
-        "buttplug-logo-1.png",
-        "buttplug.3.0.0.nupkg.sha512",
-        "buttplug.nuspec",
-        "lib/netstandard2.0/Buttplug.dll",
-        "lib/netstandard2.1/Buttplug.dll"
-      ]
-    },
-    "Buttplug.Client.Connectors.WebsocketConnector/3.0.0": {
-      "sha512": "AmnRh5vw2aV6ygV5mQc2BPCTWy5INNq91DrFtGBeffjNWg2dfERq4CCf1PmDPXxfQiR9pn+2nIex4tKjLGxbeg==",
-      "type": "package",
-      "path": "buttplug.client.connectors.websocketconnector/3.0.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE",
-        "README.md",
-        "buttplug-logo-1.png",
-        "buttplug.client.connectors.websocketconnector.3.0.0.nupkg.sha512",
-        "buttplug.client.connectors.websocketconnector.nuspec",
-        "lib/netstandard2.0/Buttplug.Client.Connectors.WebsocketConnector.dll",
-        "lib/netstandard2.1/Buttplug.Client.Connectors.WebsocketConnector.dll"
-      ]
-    },
-    "deniszykov.WebSocketListener/4.2.15": {
-      "sha512": "hHYb5vnNfpP/XLGLzLNOHQEuYoozr+jCtUGxWSkJRk/nPJjiBm2crMsmPvIwXcT6GCWZcRQm2LZWh9pS58DozQ==",
-      "type": "package",
-      "path": "deniszykov.websocketlistener/4.2.15",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "deniszykov.websocketlistener.4.2.15.nupkg.sha512",
-        "deniszykov.websocketlistener.nuspec",
-        "lib/net45/deniszykov.WebSocketListener.dll",
-        "lib/netstandard1.3/deniszykov.WebSocketListener.dll"
-      ]
-    },
     "ILRepack/2.1.0-beta1": {
       "sha512": "CUmDepugxfNKVMAsd1PzS8NSoyDfELsufDzwJ1+7D08bMAQbtHEQ9UVdjWjR3GBE0iPc0GvOhSJi0+xfFXwiRA==",
       "type": "package",
@@ -232,75 +85,6 @@
         "build/ILRepack.Lib.MSBuild.Task.targets",
         "ilrepack.lib.msbuild.task.2.0.18.2.nupkg.sha512",
         "ilrepack.lib.msbuild.task.nuspec"
-      ]
-    },
-    "Microsoft.CSharp/4.7.0": {
-      "sha512": "pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
-      "type": "package",
-      "path": "microsoft.csharp/4.7.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net45/_._",
-        "lib/netcore50/Microsoft.CSharp.dll",
-        "lib/netcoreapp2.0/_._",
-        "lib/netstandard1.3/Microsoft.CSharp.dll",
-        "lib/netstandard2.0/Microsoft.CSharp.dll",
-        "lib/netstandard2.0/Microsoft.CSharp.xml",
-        "lib/portable-net45+win8+wp8+wpa81/_._",
-        "lib/uap10.0.16299/_._",
-        "lib/win8/_._",
-        "lib/wp80/_._",
-        "lib/wpa81/_._",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "lib/xamarintvos10/_._",
-        "lib/xamarinwatchos10/_._",
-        "microsoft.csharp.4.7.0.nupkg.sha512",
-        "microsoft.csharp.nuspec",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net45/_._",
-        "ref/netcore50/Microsoft.CSharp.dll",
-        "ref/netcore50/Microsoft.CSharp.xml",
-        "ref/netcore50/de/Microsoft.CSharp.xml",
-        "ref/netcore50/es/Microsoft.CSharp.xml",
-        "ref/netcore50/fr/Microsoft.CSharp.xml",
-        "ref/netcore50/it/Microsoft.CSharp.xml",
-        "ref/netcore50/ja/Microsoft.CSharp.xml",
-        "ref/netcore50/ko/Microsoft.CSharp.xml",
-        "ref/netcore50/ru/Microsoft.CSharp.xml",
-        "ref/netcore50/zh-hans/Microsoft.CSharp.xml",
-        "ref/netcore50/zh-hant/Microsoft.CSharp.xml",
-        "ref/netcoreapp2.0/_._",
-        "ref/netstandard1.0/Microsoft.CSharp.dll",
-        "ref/netstandard1.0/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/de/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/es/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/fr/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/it/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/ja/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/ko/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/ru/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/zh-hans/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/zh-hant/Microsoft.CSharp.xml",
-        "ref/netstandard2.0/Microsoft.CSharp.dll",
-        "ref/netstandard2.0/Microsoft.CSharp.xml",
-        "ref/portable-net45+win8+wp8+wpa81/_._",
-        "ref/uap10.0.16299/_._",
-        "ref/win8/_._",
-        "ref/wp80/_._",
-        "ref/wpa81/_._",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "ref/xamarintvos10/_._",
-        "ref/xamarinwatchos10/_._",
-        "useSharedDesignerContext.txt",
-        "version.txt"
       ]
     },
     "Newtonsoft.Json/13.0.2": {
@@ -333,40 +117,15 @@
         "packageIcon.png"
       ]
     },
-    "System.Threading.Tasks.Dataflow/7.0.0": {
-      "sha512": "BmSJ4b0e2nlplV/RdWVxvH7WECTHACofv06dx/JwOYc0n56eK1jIWdQKNYYsReSO4w8n1QA5stOzSQcfaVBkJg==",
-      "type": "package",
-      "path": "system.threading.tasks.dataflow/7.0.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "buildTransitive/net461/System.Threading.Tasks.Dataflow.targets",
-        "buildTransitive/net462/_._",
-        "buildTransitive/net6.0/_._",
-        "buildTransitive/netcoreapp2.0/System.Threading.Tasks.Dataflow.targets",
-        "lib/net462/System.Threading.Tasks.Dataflow.dll",
-        "lib/net462/System.Threading.Tasks.Dataflow.xml",
-        "lib/net6.0/System.Threading.Tasks.Dataflow.dll",
-        "lib/net6.0/System.Threading.Tasks.Dataflow.xml",
-        "lib/net7.0/System.Threading.Tasks.Dataflow.dll",
-        "lib/net7.0/System.Threading.Tasks.Dataflow.xml",
-        "lib/netstandard2.0/System.Threading.Tasks.Dataflow.dll",
-        "lib/netstandard2.0/System.Threading.Tasks.Dataflow.xml",
-        "lib/netstandard2.1/System.Threading.Tasks.Dataflow.dll",
-        "lib/netstandard2.1/System.Threading.Tasks.Dataflow.xml",
-        "system.threading.tasks.dataflow.7.0.0.nupkg.sha512",
-        "system.threading.tasks.dataflow.nuspec",
-        "useSharedDesignerContext.txt"
-      ]
+    "AdultToyAPI/1.0.0": {
+      "type": "project",
+      "path": "../AdultToyAPI/AdultToyAPI.csproj",
+      "msbuildProject": "../AdultToyAPI/AdultToyAPI.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.7.2": [
-      "Buttplug >= 3.0.0",
-      "Buttplug.Client.Connectors.WebsocketConnector >= 3.0.0",
+      "AdultToyAPI >= 1.0.0",
       "ILRepack >= 2.1.0-beta1",
       "ILRepack.Lib.MSBuild.Task >= 2.0.18.2",
       "Newtonsoft.Json >= 13.0.2"
@@ -406,21 +165,17 @@
       },
       "frameworks": {
         "net472": {
-          "projectReferences": {}
+          "projectReferences": {
+            "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
+              "projectPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj"
+            }
+          }
         }
       }
     },
     "frameworks": {
       "net472": {
         "dependencies": {
-          "Buttplug": {
-            "target": "Package",
-            "version": "[3.0.0, )"
-          },
-          "Buttplug.Client.Connectors.WebsocketConnector": {
-            "target": "Package",
-            "version": "[3.0.0, )"
-          },
           "ILRepack": {
             "target": "Package",
             "version": "[2.1.0-beta1, )"

@@ -5,8 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ABI.CCK.Components;
-using Buttplug;
-using Buttplug.Client;
+using AdultToyAPI;
 using UnityEngine;
 using UnityEngine.Animations;
 using static MelonLoader.MelonLogger;
@@ -15,21 +14,21 @@ namespace VibeGoesBrrr
 {
     class DeviceSensorBinder
     {
-        public Dictionary<ButtplugClientDevice, List<(Sensor Sensor, int? Feature)>> Bindings = new Dictionary<ButtplugClientDevice, List<(Sensor Sensor, int? Feature)>>();
+        public Dictionary<IAdultToy, List<(Sensor Sensor, int? Feature)>> Bindings = new Dictionary<IAdultToy, List<(Sensor Sensor, int? Feature)>>();
 
-        public event EventHandler<(ButtplugClientDevice Device, Sensor Sensor, int? Feature)> BindingAdded;
-        public event EventHandler<(ButtplugClientDevice Device, Sensor Sensor, int? Feature)> BindingRemoved;
+        public event EventHandler<(IAdultToy Device, Sensor Sensor, int? Feature)> BindingAdded;
+        public event EventHandler<(IAdultToy Device, Sensor Sensor, int? Feature)> BindingRemoved;
 
         static readonly DeviceDB mDB = new DeviceDB();
-        ButtplugClient mButtplug;
+        IAdultToyAPI ToyAPI;
         List<ISensorProvider> mSensorProviders = new List<ISensorProvider>();
 
-        ConcurrentQueue<ButtplugClientDevice> DevicesAdded = new ConcurrentQueue<ButtplugClientDevice>();
-        ConcurrentQueue<ButtplugClientDevice> DevicesRemoved = new ConcurrentQueue<ButtplugClientDevice>();
+        ConcurrentQueue<IAdultToy> DevicesAdded = new ConcurrentQueue<IAdultToy>();
+        ConcurrentQueue<IAdultToy> DevicesRemoved = new ConcurrentQueue<IAdultToy>();
         public static bool JustUseMyDevice = false;
-        public void SetButtplugClient(ButtplugClient buttplug)
+        public void SetButtplugClient(IAdultToyAPI buttplug)
         {            
-            if (mButtplug != null)
+            if (ToyAPI != null)
             {
                 buttplug.DeviceRemoved -= OnDeviceRemoved;
                 buttplug.DeviceAdded -= OnDeviceAdded;
@@ -37,7 +36,7 @@ namespace VibeGoesBrrr
                 OnButtplugDisconnect(buttplug, new EventArgs());
             }
 
-            mButtplug = buttplug;
+            ToyAPI = buttplug;
             buttplug.DeviceAdded += OnDeviceAdded;
             buttplug.DeviceRemoved += OnDeviceRemoved;
             buttplug.ServerDisconnect += OnButtplugDisconnect;
@@ -61,7 +60,7 @@ namespace VibeGoesBrrr
             // all our logic here in the main thread to prevent weird race conditions and crashes.
 
             // OnDeviceRemoved
-            ButtplugClientDevice device = null;
+            IAdultToy device = null;
             DevicesRemoved.TryDequeue(out device);
             do
             {
@@ -100,7 +99,7 @@ namespace VibeGoesBrrr
         {
             try
             {
-                DevicesAdded.Enqueue(e.Device);
+                DevicesAdded.Enqueue(e.AdultToy);
             }catch(Exception error)
             {
                 Error(error);
@@ -111,7 +110,7 @@ namespace VibeGoesBrrr
         {
             try
             {
-                DevicesRemoved.Enqueue(e.Device);
+                DevicesRemoved.Enqueue(e.AdultToy);
             }
             catch (Exception error)
             {
@@ -125,7 +124,7 @@ namespace VibeGoesBrrr
             {
                 foreach (var device in Bindings.Keys.ToList())
                 {
-                    OnDeviceRemoved(mButtplug, new DeviceRemovedEventArgs(device));
+                    OnDeviceRemoved(ToyAPI, new DeviceRemovedEventArgs(device));
                 }
             }
             catch (Exception error)
@@ -136,15 +135,15 @@ namespace VibeGoesBrrr
 
         void OnSensorDiscovered(object sensorProviderObj, Sensor sensor)
         {
-            if (mButtplug != null)
+            if (ToyAPI != null)
             {
-                foreach (var device in mButtplug.Devices)
+                foreach (var device in ToyAPI.GetConnectedDevices())
                 {
                     MatchSensorAndDevice(new List<Sensor> { sensor }, device);
                 }
             }
         }
-        private void MatchSensorAndDevice(List<Sensor> sensors, ButtplugClientDevice device)
+        private void MatchSensorAndDevice(List<Sensor> sensors, IAdultToy device)
         {
             var matches = Match(sensors, device);
             if (matches.Count > 0)
@@ -177,7 +176,7 @@ namespace VibeGoesBrrr
             }
         }
 
-        static List<(Sensor Sensor, int? Feature)> Match(List<Sensor> sensors, ButtplugClientDevice device)
+        static List<(Sensor Sensor, int? Feature)> Match(List<Sensor> sensors, IAdultToy device)
         {
             var matching = new List<(Sensor, int?)>();
             foreach (var sensor in sensors)
@@ -200,7 +199,7 @@ namespace VibeGoesBrrr
                             HumanBodyBones[] validBoneParents = { HumanBodyBones.Spine, HumanBodyBones.Hips, HumanBodyBones.Chest, HumanBodyBones.UpperChest };
                             if (IsChildOfBoneType(sensor.GameObject.transform, validBoneParents))
                             {
-                                var iostDevice = mDB.FindDevice(device.Name);
+                                var iostDevice = mDB.FindDevice(device.GetName());
                                 if (iostDevice != null)
                                 {
                                     if(JustUseMyDevice)
@@ -229,7 +228,7 @@ namespace VibeGoesBrrr
                     else
                     {
                         // Allow "Giver", "Taker" and "Any" tags to override match by type
-                        var iostDevice = mDB.FindDevice(device.Name);
+                        var iostDevice = mDB.FindDevice(device.GetName());
                         if (iostDevice != null)
                         {
                             if(JustUseMyDevice || sensor.Tag == "Any")
@@ -257,7 +256,7 @@ namespace VibeGoesBrrr
                     try
                     {
                         int index = int.Parse(sensor.Tag.Substring(0, 1));
-                        if (index == device.Index)
+                        if (index == device.GetIndex())
                         {
                             matching.Add((sensor, null));
                             continue;
@@ -286,7 +285,7 @@ namespace VibeGoesBrrr
             return matching;
         }
 
-        static (Sensor Sensor, int? Feature)? MatchDevice(string needle, Sensor sensor, Buttplug.Client.ButtplugClientDevice device)
+        static (Sensor Sensor, int? Feature)? MatchDevice(string needle, Sensor sensor, IAdultToy device)
         {
             // Split needle on commas for multi-device binding
             var parts = needle.Split(',').Select(s => s.Trim());
@@ -301,7 +300,7 @@ namespace VibeGoesBrrr
                 if (match.Success)
                 {
                     // Partial match on device name
-                    if (match.Groups[1].Success && !device.Name.ToLower().Contains(match.Groups[1].Value.ToLower()))
+                    if (match.Groups[1].Success && !device.GetName().ToLower().Contains(match.Groups[1].Value.ToLower()))
                     {
                         continue;
                     }
@@ -309,13 +308,14 @@ namespace VibeGoesBrrr
                     // Motor indices are 1-based
                     // null index = all motors
                     int? motorIndex = null;
-                    if (device.VibrateAttributes.Count > 0)
+                    var MotorTypes = device.GetMotorTypes();
+                    if (MotorTypes.Count > 0)
                     {
-                        var motorCount = device.VibrateAttributes.Count;
+                        var motorCount = MotorTypes.Count;
                         motorIndex = match.Groups[2].Success ? (int?)int.Parse(match.Groups[2].Value) - 1 : null;
                         if (motorIndex != null && ((int)motorIndex < 0 || (int)motorIndex >= motorCount))
                         {
-                            Error($"Invalid motor index \"{motorIndex + 1}\" for sensor \"{sensor.Name}\". The device \"{device.Name}\" reports only having {motorCount} motor{(motorCount > 0 ? "s" : "")}. Make sure you set up your sensor names correctly.");
+                            Error($"Invalid motor index \"{motorIndex + 1}\" for sensor \"{sensor.Name}\". The device \"{device.GetName()}\" reports only having {motorCount} motor{(motorCount > 0 ? "s" : "")}. Make sure you set up your sensor names correctly.");
                             continue;
                         }
                     }

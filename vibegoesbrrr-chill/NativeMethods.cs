@@ -1,5 +1,4 @@
-﻿using Buttplug;
-using MelonLoader;
+﻿using MelonLoader;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
