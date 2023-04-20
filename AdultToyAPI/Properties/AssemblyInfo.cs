@@ -36,5 +36,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: MelonInfo(typeof(AdultToyAPI.AdultToyAPI), "Adult Toy API", "1.0.0.0", "DarkPowers", "")]
+[assembly: MelonInfo(typeof(AdultToyAPI.AdultToyAPI), "Adult Toy API", "1.0.0", "DarkPowers", "")]
 [assembly: MelonGame("Alpha Blend Interactive", "ChilloutVR")]

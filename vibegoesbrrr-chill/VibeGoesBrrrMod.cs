@@ -149,6 +149,7 @@ namespace VibeGoesBrrr
                         ToyAPI.DeviceRemoved += ToyAPI_DeviceRemoved;
                         ToyAPI.ErrorReceived += ToyAPI_ErrorReceived;
                         ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
+                        Binder.SetButtplugClient(ToyAPI);
                     }
                 }
             }

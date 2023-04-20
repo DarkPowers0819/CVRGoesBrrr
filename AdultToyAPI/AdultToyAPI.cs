@@ -34,7 +34,7 @@ namespace AdultToyAPI
         bool UseBluetoothLE = true;
 
         // non-configurable settings
-        string ButtplugCLIPath = "Executables/intiface-engine.exe";
+        string ButtplugCLIPath = "Executables/AdultToyAPI-intiface-engine.exe";
 
         // Internal Variables
         System.Timers.Timer ConnectToIntifaceTimer;
@@ -58,9 +58,30 @@ namespace AdultToyAPI
         public override void OnLateInitializeMelon()
         {
             base.OnLateInitializeMelon();
-            InitSettings();
-            LoadSettings();
-            InitTimers();
+            try
+            {
+                InitSettings();
+                LoadSettings();
+                InitTimers();
+                ExportIntifaceCLI();
+            }
+            catch(Exception e)
+            {
+                MelonLoader.MelonLogger.Error("Error During Initialization", e);
+            }
+        }
+        private void ExportIntifaceCLI()
+        {
+            var assembly = System.Reflection.Assembly.GetAssembly(typeof(AdultToyAPI));
+            foreach (var name in assembly.GetManifestResourceNames())
+            {
+                DebugLog("embeded resource: " + name);
+            }
+            using (var stream = assembly.GetManifestResourceStream("AdultToyAPI.intiface-engine.exe"))
+            {
+                var file = new FileStream(ButtplugCLIPath, FileMode.Create, FileAccess.Write);
+                stream.CopyTo(file);
+            }
         }
 
         private void InitTimers()
@@ -229,7 +250,6 @@ namespace AdultToyAPI
 
         private void LaunchIntifaceCLI()
         {
-            DownloadButtplugCLI();
             StartButtplugInstance();
         }
 
@@ -277,70 +297,6 @@ namespace AdultToyAPI
             {
                 MelonLoader.MelonLogger.Msg(System.ConsoleColor.Red, "[ERROR] " + message);
             }
-        }
-        private void DownloadButtplugCLI()
-        {
-
-            DebugLog("Checking if Intiface needs to be updated...");
-            lock (DownloadLock)
-            {
-                var wc = new WebClient
-                {
-                    Headers = {
-                    ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0"
-                }
-                };
-
-                if (CheckForIntifaceUpdate(wc) || !File.Exists("Executables/intiface-engine.exe"))
-                {
-                    DebugLog("New Intiface version detected! Downloading to Executables/intiface-engine.exe!");
-
-                    try
-                    {
-                        byte[] bytes = wc.DownloadData("https://github.com/intiface/intiface-engine/releases/latest/download/intiface-engine-win-x64-Release.zip");
-                        var stream = new MemoryStream(bytes);
-
-                        var zipStream = new ZipArchive(stream).GetEntry("intiface-engine.exe").Open();
-                        Directory.CreateDirectory("Executables");
-                        var file = new FileStream(ButtplugCLIPath, FileMode.Create, FileAccess.Write);
-                        zipStream.CopyTo(file);
-                        stream.Dispose();
-                        zipStream.Dispose();
-                    }
-                    catch (Exception e)
-                    {
-                        MelonLoader.MelonLogger.Error("Failed to download Buttplug Engine. If you start multiple instances of VRC this might occur", e);
-                    }
-                }
-            }
-
-        }
-        private bool CheckForIntifaceUpdate(WebClient client)
-        {
-            try
-            {
-                var request = client.DownloadString("https://api.github.com/repos/intiface/intiface-engine/releases?per_page=1");
-                var jsonArray = JsonConvert.DeserializeObject<JArray>(request);
-
-                if (jsonArray != null)
-                {
-                    var entry = jsonArray.First;
-                    string entryString = (string)entry["name"];
-
-                    var result = !string.Equals(CLIVersion, entryString);
-
-                    DebugLog($"Intiface version is {entryString} | Outdated: {result}");
-
-                    MelonPreferences.SetEntryValue(BuildInfo.Name, "CLIVersion", entryString);
-                    return result;
-                }
-            }
-            catch (Exception e)
-            {
-                MelonLoader.MelonLogger.Error("An error occured while attempting to retrieve Intiface version info!", e);
-            }
-
-            return false;
         }
         bool IsIntifaceCentralRunning()
         {

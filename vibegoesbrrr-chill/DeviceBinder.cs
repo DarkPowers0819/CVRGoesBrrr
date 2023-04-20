@@ -30,10 +30,10 @@ namespace VibeGoesBrrr
         {            
             if (ToyAPI != null)
             {
-                buttplug.DeviceRemoved -= OnDeviceRemoved;
-                buttplug.DeviceAdded -= OnDeviceAdded;
-                buttplug.ServerDisconnect -= OnButtplugDisconnect;
-                OnButtplugDisconnect(buttplug, new EventArgs());
+                ToyAPI.DeviceRemoved -= OnDeviceRemoved;
+                ToyAPI.DeviceAdded -= OnDeviceAdded;
+                ToyAPI.ServerDisconnect -= OnButtplugDisconnect;
+                OnButtplugDisconnect(ToyAPI, new EventArgs());
             }
 
             ToyAPI = buttplug;
