@@ -23,8 +23,6 @@ namespace VibeGoesBrrr
     {
         private bool Active = true;
         private bool TouchEnabled = true;
-        private bool EnableBLERateLimit = false;
-        private int BLERateLmit = 50;
         private bool ThrustEnabled = true;
         private bool TouchFeedbackEnabled = true;
         private bool AudioEnabled = false;
@@ -34,7 +32,6 @@ namespace VibeGoesBrrr
         private float MinIntensity = 0f;
         private float MaxIntensity = 100f;
         private float IntensityCurveExponent = 1f;
-        private string ServerURI = "ws://localhost:12345";
         private float UpdateFreq = 10f;
         private float ScanDuration = 15f;
         private float ScanWaitDuration = 5f;
@@ -64,8 +61,6 @@ namespace VibeGoesBrrr
 
             MelonPreferences.CreateCategory(BuildInfo.Name, "Vibe Goes Brrr~");
             MelonPreferences.CreateEntry(BuildInfo.Name, "Active", Active, "Active");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "EnableBLERateLimit", EnableBLERateLimit, "Enable BLE Rate Limit");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "BLERateLmit", BLERateLmit, "delay in milliseconds");
             MelonPreferences.CreateEntry(BuildInfo.Name, "TouchEnabled", TouchEnabled, "Touch Vibrations");
             MelonPreferences.CreateEntry(BuildInfo.Name, "ThrustEnabled", ThrustEnabled, "Thrust Vibrations");
             MelonPreferences.CreateEntry(BuildInfo.Name, "JustUseMyToys", DeviceSensorBinder.JustUseMyDevice, "JustUseMyToys");
@@ -85,7 +80,6 @@ namespace VibeGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponent2", IntensityCurveExponent, "Intensity Curve Exponent");
             MelonPreferences.CreateEntry(BuildInfo.Name, "XSOverlayNotifications", XSOverlayNotifications, "XSOverlay Notifications");
             // Hidden preferences
-            MelonPreferences.CreateEntry(BuildInfo.Name, "ServerURI", ServerURI, "Server URI", null, is_hidden: false);
             MelonPreferences.CreateEntry(BuildInfo.Name, "ScanDuration2", ScanDuration, "Scan Duration", null, is_hidden: true);
             MelonPreferences.CreateEntry(BuildInfo.Name, "ScanWaitDuration2", ScanWaitDuration, "Scan Wait Duration", null, is_hidden: true);
             OnPreferencesSaved();
@@ -493,12 +487,7 @@ namespace VibeGoesBrrr
 
                         ToyAPI.SetMotorSpeed(device, motorTypes[motorIndex], motorIntensityValues[motorIndex]);
                         Util.DebugLog($"{device.GetName()}-{motorTypes[motorIndex].ToString()}: {motorIntensityValues[0]}");
-                        if (EnableBLERateLimit)
-                        {
-                            Thread.Sleep(Math.Min(Math.Max(BLERateLmit, 0), 200));
-                        }
                     }
-                    //commands.Add(device.ScalarAsync(subCommands));
                     DeviceIntensities[device.GetIndex()] = motorIntensityValues;
 
                 }
@@ -641,7 +630,6 @@ namespace VibeGoesBrrr
             mIdleIntensity = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IdleIntensity");
             MinIntensity = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "MinIntensity");
             MaxIntensity = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "MaxIntensity");
-            ServerURI = MelonPreferences.GetEntryValue<string>(BuildInfo.Name, "ServerURI");
             UpdateFreq = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "UpdateFreq");
             DeviceSensorBinder.JustUseMyDevice = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "JustUseMyToys");
             ScanDuration = Math.Max(2, MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "ScanDuration2"));
@@ -649,8 +637,6 @@ namespace VibeGoesBrrr
             IntensityCurveExponent = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponent2");
             XSOverlayNotifications = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "XSOverlayNotifications");
             Active = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Active");
-            EnableBLERateLimit = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "EnableBLERateLimit");
-            BLERateLmit = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "BLERateLmit");
             bool setupMode = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "SetupMode");
             CreateBackgroundProcessingTimer();
             if (!SetupMode && setupMode)

@@ -32,6 +32,13 @@ namespace AdultToyAPI
         string CLIVersion = "";
         bool UseLovenseConnect = true;
         bool UseBluetoothLE = true;
+        bool RestartIntiface = false;
+        bool UseSerial = false;
+        bool UseHID = false;
+        bool UseLovenseDongle = true;
+        bool UseXinput = false;
+        bool UseDeviceWebsocketServer = false;
+        int DeviceWebsocketServerPort = 10000;
 
         // non-configurable settings
         string ButtplugCLIPath = "Executables/AdultToyAPI-intiface-engine.exe";
@@ -47,6 +54,7 @@ namespace AdultToyAPI
         Task DeviceScanningTask;
         object DownloadLock = new object();
         object RunIntifaceCLILock = new object();
+        
         
 
         //Public variables
@@ -127,6 +135,7 @@ namespace AdultToyAPI
         {
             try
             {
+                
                 if (DeviceCommandQueue.Count > 0)
                 {
                     ScalarSubcommand command = null;
@@ -143,6 +152,23 @@ namespace AdultToyAPI
             {
                 MelonLoader.MelonLogger.Error("Unable to send Device command", ex);
             }
+        }
+
+        private void CloseIntifaceCLI()
+        {
+            lock (RunIntifaceCLILock)
+            {
+                IntifaceProcess.Kill();
+            }
+        }
+
+        public override void OnApplicationQuit()
+        {
+            ClosingApp = true;
+            base.OnApplicationQuit();
+            Task t = Buttplug.DisconnectAsync();
+            CloseIntifaceCLI();
+            Buttplug.Dispose();
         }
 
         private ButtplugClientDevice GetDeviceByIndex(uint index)
@@ -259,16 +285,25 @@ namespace AdultToyAPI
             IntifaceServerURI = MelonPreferences.GetEntryValue<string>(BuildInfo.Name, "IntifaceServerURI");
             SecondsBetweenConnectionAttempts = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "SecondsBetweenConnectionAttempts");
             DeviceCommandTimeInterval = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "DeviceCommandTimeInterval");
+            DeviceCommandTimeInterval = Clamp(DeviceCommandTimeInterval, 1, 100);
             Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
             CLIVersion = MelonPreferences.GetEntryValue<string>(BuildInfo.Name, "CLIVersion");
             IntifaceServerPort = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "IntifaceServerPort");
             UseLovenseConnect = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseLovenseConnect");
             UseBluetoothLE = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseBluetoothLE");
+            UseSerial = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseSerial");
+            UseHID = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseHID");
+            UseLovenseDongle = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseLovenseDongle");
+            UseXinput = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseXinput");
+            UseDeviceWebsocketServer = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseDeviceWebsocketServer");
+            DeviceWebsocketServerPort = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "DeviceWebsocketServerPort");
+            RestartIntiface = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "RestartIntiface");
         }
 
         private void InitSettings()
         {
             MelonPreferences.CreateCategory(BuildInfo.Name, "Adult Toy API~");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "RestartIntiface", RestartIntiface, "Restart Intiface");
             MelonPreferences.CreateEntry(BuildInfo.Name, "UseEmbeddedCLI", UseEmbeddedCLI, "Use Embedded CLI");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntifaceServerURI", IntifaceServerURI, "IntifaceServerURI");
             MelonPreferences.CreateEntry(BuildInfo.Name, "SecondsBetweenConnectionAttempts", SecondsBetweenConnectionAttempts, "Seconds Between Connection Attempts");
@@ -278,11 +313,30 @@ namespace AdultToyAPI
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntifaceServerPort", IntifaceServerPort, "Intiface Server Port");
             MelonPreferences.CreateEntry(BuildInfo.Name, "UseLovenseConnect", UseLovenseConnect, "Use Lovense Connect");
             MelonPreferences.CreateEntry(BuildInfo.Name, "UseBluetoothLE", UseBluetoothLE, "Use Bluetooth LE");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseSerial", UseSerial, "Use Serial");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseHID", UseHID, "Use HID");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseLovenseDongle", UseLovenseDongle, "Use Lovense Dongle");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseXinput", UseXinput, "Use Xinput");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseDeviceWebsocketServer", UseDeviceWebsocketServer, "Use Device Websocket Server");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "DeviceWebsocketServerPort", DeviceWebsocketServerPort, "Device Websocket Server Port");
         }
 
         public override void OnUpdate()
         {
             base.OnUpdate();
+            try
+            {
+                if (RestartIntiface)
+                {
+                    MelonPreferences.SetEntryValue(BuildInfo.Name, "RestartIntiface", false);
+                    RestartIntiface = false;
+                    CloseIntifaceCLI();
+                    StartButtplugInstance();
+                }
+            }catch(Exception e)
+            {
+                MelonLoader.MelonLogger.Error("error trying to restart intiface",e);
+            }
         }
         private void DebugLog(string message)
         {
@@ -304,14 +358,17 @@ namespace AdultToyAPI
             {
                 try
                 {
-                    if (item.ProcessName == "intiface_central.exe")
+                    if (!item.HasExited)
                     {
-                        return true;
+                        if (item.ProcessName == "intiface_central.exe")
+                        {
+                            return true;
+                        }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    MelonLoader.MelonLogger.Error("Error while retrieving Processname of running application");
+                    MelonLoader.MelonLogger.Error("Error while retrieving Processname of running application",e);
                 }
             }
             return false;
@@ -346,6 +403,28 @@ namespace AdultToyAPI
                     {
                         options += "--use-bluetooth-le ";
                     }
+                    if(UseSerial)
+                    {
+                        options += "--use-serial ";
+                    }
+                    if (UseHID)
+                    {
+                        options += "--use-hid ";
+                    }
+                    if (UseLovenseDongle)
+                    {
+                        options += "--use-lovense-dongle ";
+                    }
+                    if (UseXinput)
+                    {
+                        options += "--use-xinput ";
+                    }
+                    if (UseDeviceWebsocketServer)
+                    {
+                        options += "--use-device-websocket-server ";
+                        options += "--device-websocket-server-port " + DeviceWebsocketServerPort;
+                    }
+                    
                     options += $" --websocket-port {IntifaceServerPort}";
                     var startInfo = new ProcessStartInfo(target.FullName, options);
                     startInfo.UseShellExecute = true;
@@ -418,6 +497,10 @@ namespace AdultToyAPI
         }
 
         private double Clamp(float speed, float min, float max)
+        {
+            return Math.Max(Math.Min(speed, max), min);
+        }
+        private int Clamp(int speed, int min, int max)
         {
             return Math.Max(Math.Min(speed, max), min);
         }

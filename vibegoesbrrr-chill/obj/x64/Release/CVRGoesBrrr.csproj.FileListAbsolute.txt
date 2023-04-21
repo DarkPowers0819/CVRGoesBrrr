@@ -18,11 +18,7 @@ E:\vibegoesbrrr-chill\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.Core
 E:\vibegoesbrrr-chill\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.CopyComplete
 E:\vibegoesbrrr-chill\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\CVRGoesBrrr.dll
-E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\Buttplug.dll
-E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\Buttplug.Client.Connectors.WebsocketConnector.dll
-E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\deniszykov.WebSocketListener.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\Newtonsoft.Json.dll
-E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\System.Threading.Tasks.Dataflow.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\MelonLoader.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\bHapticsLib.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AssetRipper.VersionUtilities.dll
@@ -39,4 +35,3 @@ E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.AssemblyReference.cache
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AdultToyAPI.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AdultToyAPI.pdb
-E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\System.Threading.Tasks.Dataflow.xml
