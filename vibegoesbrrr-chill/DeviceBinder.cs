@@ -326,16 +326,8 @@ namespace VibeGoesBrrr
 
             return null;
         }
-
-        static bool IsChildOfBoneType(Transform transform, HumanBodyBones[] boneTypes)
+        static Dictionary<int, HumanBodyBones> GetBoneDictionary(Animator animator, Transform transform)
         {
-            var animator = Util.GetComponentInParent<Animator>(transform, true);
-            if (animator == null)
-            {
-                return false;
-            }
-
-            // Create a mapping from bone -> HumanBodyBones since Unity bizzarrely doesn't provide this
             var boneIds = new Dictionary<int, HumanBodyBones>();
             if (animator.isHuman)
             {
@@ -358,7 +350,7 @@ namespace VibeGoesBrrr
                 var root = transform.root.GetComponentInChildren<CVRAvatar>(true)?.gameObject;
                 if (root == null)
                 {
-                    return false;
+                    return boneIds;
                 }
                 foreach (var skinnedMeshRenderer in root.GetComponentsInChildren<SkinnedMeshRenderer>(true))
                 {
@@ -375,6 +367,19 @@ namespace VibeGoesBrrr
                     }
                 }
             }
+            return boneIds;
+        }
+        static bool IsChildOfBoneType(Transform transform, HumanBodyBones[] boneTypes)
+        {
+            var animator = Util.GetComponentInParent<Animator>(transform, true);
+            if (animator == null)
+            {
+                return false;
+            }
+
+            // Create a mapping from bone -> HumanBodyBones since Unity bizzarrely doesn't provide this
+            var boneIds = GetBoneDictionary(animator, transform);
+
 
             // Gather a list of sensor parents, taking constraints into account
             var candidateParents = new List<Transform>();
@@ -391,6 +396,11 @@ namespace VibeGoesBrrr
             candidateParents.Add(transform.parent);
 
             // Figure out what's the first parent bone of sensor
+            return IsChildOfBoneType(candidateParents, boneIds, boneTypes);
+        }
+
+        private static bool IsChildOfBoneType(List<Transform> candidateParents, Dictionary<int, HumanBodyBones> boneIds, HumanBodyBones[] boneTypes)
+        {
             foreach (var candidate in candidateParents)
             {
                 for (Transform parent = candidate; parent != null; parent = parent.transform.parent)
@@ -410,7 +420,6 @@ namespace VibeGoesBrrr
                     }
                 }
             }
-
             return false;
         }
     }

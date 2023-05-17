@@ -56,7 +56,8 @@ namespace VibeGoesBrrr
         "Ride-on Vibrator",
         "Butterfly",
         "Suction Vibrator",
-        "Wand"
+        "Wand",
+        "Nipple Clamps"
       };
 
             public bool IsGiver

@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.*")]
+//[assembly: AssemblyFileVersion("1.0.*")]
 
-[assembly: MelonInfo(typeof(AdultToyAPI.AdultToyAPI), "Adult Toy API", "1.0.0", "DarkPowers", "")]
+[assembly: MelonInfo(typeof(AdultToyAPI.AdultToyAPI), "Adult Toy API", "0.0.4", "DarkPowers", "")]
 [assembly: MelonGame("Alpha Blend Interactive", "ChilloutVR")]

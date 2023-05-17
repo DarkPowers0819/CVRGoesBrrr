@@ -85,6 +85,10 @@ namespace AdultToyAPI
             {
                 DebugLog("embeded resource: " + name);
             }
+            if(!Directory.Exists("Executables"))
+            {
+                Directory.CreateDirectory("Executables");
+            }
             using (var stream = assembly.GetManifestResourceStream("AdultToyAPI.intiface-engine.exe"))
             {
                 var file = new FileStream(ButtplugCLIPath, FileMode.Create, FileAccess.Write);
@@ -240,7 +244,11 @@ namespace AdultToyAPI
             }
             catch (Exception e)
             {
-                MelonLoader.MelonLogger.Error("unable to connect to intiface", e);
+                MelonLoader.MelonLogger.Error("unable to connect to intiface, is it running? aditional detail available if debug is enabled.");
+                if(Debug)
+                {
+                    MelonLoader.MelonLogger.Error(e);
+                }
                 return false;
             }
             return true;
@@ -281,8 +289,17 @@ namespace AdultToyAPI
 
         private void LoadSettings()
         {
+            DebugLog("Settings Updated");
             UseEmbeddedCLI = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseEmbeddedCLI");
-            IntifaceServerURI = MelonPreferences.GetEntryValue<string>(BuildInfo.Name, "IntifaceServerURI");
+            string newIntifaceServerURI = MelonPreferences.GetEntryValue<string>(BuildInfo.Name, "IntifaceServerURI");
+            if(string.IsNullOrEmpty(newIntifaceServerURI) || string.Equals(newIntifaceServerURI, "null",StringComparison.InvariantCultureIgnoreCase))
+            {
+                newIntifaceServerURI = "ws:\\localhost"; // attempting to work around an issue where mellon preferences may not initialize correctly
+            }
+            if(!string.Equals(IntifaceServerURI,newIntifaceServerURI))
+            {
+                Task t = Buttplug.DisconnectAsync();
+            }
             SecondsBetweenConnectionAttempts = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "SecondsBetweenConnectionAttempts");
             DeviceCommandTimeInterval = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "DeviceCommandTimeInterval");
             DeviceCommandTimeInterval = Clamp(DeviceCommandTimeInterval, 1, 100);
@@ -305,7 +322,7 @@ namespace AdultToyAPI
             MelonPreferences.CreateCategory(BuildInfo.Name, "Adult Toy API~");
             MelonPreferences.CreateEntry(BuildInfo.Name, "RestartIntiface", RestartIntiface, "Restart Intiface");
             MelonPreferences.CreateEntry(BuildInfo.Name, "UseEmbeddedCLI", UseEmbeddedCLI, "Use Embedded CLI");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "IntifaceServerURI", IntifaceServerURI, "IntifaceServerURI");
+            MelonPreferences.CreateEntry<string>(BuildInfo.Name, "IntifaceServerURI", IntifaceServerURI, "IntifaceServerURI");
             MelonPreferences.CreateEntry(BuildInfo.Name, "SecondsBetweenConnectionAttempts", SecondsBetweenConnectionAttempts, "Seconds Between Connection Attempts");
             MelonPreferences.CreateEntry(BuildInfo.Name, "DeviceCommandTimeInterval", DeviceCommandTimeInterval, "Device Command Time Interval");
             MelonPreferences.CreateEntry(BuildInfo.Name, "Debug", Debug, "Debug");
@@ -413,7 +430,7 @@ namespace AdultToyAPI
                     }
                     if (UseLovenseDongle)
                     {
-                        options += "--use-lovense-dongle ";
+                        options += "--use-lovense-dongle-hid ";
                     }
                     if (UseXinput)
                     {

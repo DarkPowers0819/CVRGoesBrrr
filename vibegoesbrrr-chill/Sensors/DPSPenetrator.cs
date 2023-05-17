@@ -19,6 +19,7 @@ namespace VibeGoesBrrr
           : base(name, ownerType, gameObject, meshObject, mesh)
         {
             mLight0 = light;
+            this.Enabled = false;
         }
 
         public override bool Active

@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(VibeGoesBrrr.BuildInfo.Version)]
-[assembly: AssemblyFileVersion(VibeGoesBrrr.BuildInfo.Version)]
+[assembly: AssemblyVersion("1.0.*")]
+//[assembly: AssemblyFileVersion(VibeGoesBrrr.BuildInfo.Version)]
 
 [assembly: MelonInfo(typeof(VibeGoesBrrr.VibeGoesBrrrMod), VibeGoesBrrr.BuildInfo.Name, VibeGoesBrrr.BuildInfo.Version, VibeGoesBrrr.BuildInfo.Author, VibeGoesBrrr.BuildInfo.DownloadLink)]
 [assembly: MelonGame("Alpha Blend Interactive", "ChilloutVR")]

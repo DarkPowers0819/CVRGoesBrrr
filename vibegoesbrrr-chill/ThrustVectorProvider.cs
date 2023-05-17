@@ -220,54 +220,125 @@ namespace VibeGoesBrrr
             }
         }
 
-        public void OnUpdate()
+        public void OnUpdate(HashSet<Sensor> activeSensors)
         {
             // Check for destructions
-            var lostSensors = new List<int>();
+            var lostSensors = new Dictionary<int,Sensor>();
             foreach (var kv in mSensorInstances)
             {
                 if (kv.Value.GameObject == null)
                 {
-                    lostSensors.Add(kv.Key);
+                    lostSensors.Add(kv.Key,kv.Value);
                 }
             }
-            foreach (var id in lostSensors)
+            foreach (var kv in lostSensors)
             {
-                var lostSensor = mSensorInstances[id];
-                mSensorInstances.Remove(id);
-                mGivers.Remove(id);
-                mTakers.Remove(id);
-                SensorLost?.Invoke(this, lostSensor);
+                mSensorInstances.Remove(kv.Key);
+                mGivers.Remove(kv.Key);
+                mTakers.Remove(kv.Key);
+                SensorLost?.Invoke(this, kv.Value);
             }
 
-            // Zero sensor values
-            foreach (var penetrator in mGivers.Values)
-            {
-                penetrator.mValue = 0f;
-            }
             foreach (var orifice in mTakers.Values)
             {
                 orifice.mCumulativeValue = 0f;
                 orifice.mNumPenetrators = 0;
             }
+            if (activeSensors == null)
+            {
+                CalculateUpdates();
+            }
+            else
+            {
+                CalculateSensorUpdates(activeSensors);
+            }
+        }
+        private void CalculateSensorUpdates(Giver giver, Taker taker)
+        {
+            if(giver.mMeshObject==null)
+            {
+                return;
+            }
+            if(taker.GameObject==null)
+            {
+                return;
+            }
+            var p0 = giver.mMeshObject.transform.position;
+            var p1 = taker.GameObject.transform.position;
+            
+            if (!taker.Active || !giver.Active) return;
+            float distance = Vector3.Distance(p0, p1);
+            float depth = Math.Max(0f, Math.Min(1 - distance / giver.Length, 1f));
+            if (depth > giver.mValue)
+            {
+                // Util.DebugLog($"{giver.Name}: 1 - {distance} / {giver.Length} = {depth}");
+                giver.mValue = depth;
+            }
+            if (depth > 0)
+            {
+                taker.mCumulativeValue += depth;
+                taker.mNumPenetrators += 1;
+            }
+        }
+        private void CalculateSensorUpdates(HashSet<Sensor> activeSensors)
+        {
+            foreach(var activeSensor in activeSensors)
+            {
+                if (activeSensor is TouchSensor)
+                    continue;
+                if (!activeSensor.Active)
+                    continue;
+                if(activeSensor.Active && activeSensor.Enabled)
+                {
+                    if(activeSensor is Giver)
+                    {
+                        foreach(var taker in mTakers.Values)
+                        {
+                            var giver = activeSensor as Giver;
+                            CalculateSensorUpdates(giver, taker);
+                        }    
+                    }
+                    if (activeSensor is Taker)
+                    {
+                        foreach (var giver in mGivers.Values)
+                        {
+                            var taker = activeSensor as Taker;
+                            CalculateSensorUpdates(giver, taker);
+                        }
+                    }
+                }
+            }
+        }
 
+        private void CalculateUpdates()
+        {
             // Update penetrations
+            int calculations = 0;
             foreach (var giver in mGivers.Values)
             {
+                giver.mValue = 0f;
                 if (!giver.Active) continue;
-
-                var p0 = giver.mMeshObject.transform.position;
+                var p0 = giver?.mMeshObject?.transform?.position;
+                if (p0 == null)
+                {
+                    continue;
+                }
 
                 foreach (var taker in mTakers.Values)
                 {
                     if (!taker.Active) continue;
-                    if (!giver.Enabled && !taker.Enabled) continue;
+                    if (!taker.Enabled && !giver.Enabled) continue;
 
                     // Simple euclidian distance
                     // Dynamic Penetration System doesn't take the increased distance of the bezier into account, it simply stretches the penetrator to fit along it, so this is actually fine!
-                    var p1 = taker.GameObject.transform.position;
+                    var p1 = taker?.GameObject?.transform?.position;
+                    if (p1 == null)
+                    {
+                        continue;
+                    }
                     // TODO: Angle limit?
-                    float distance = Vector3.Distance(p0, p1);
+                    float distance = Vector3.Distance(p0.Value, p1.Value);
+                    calculations++;
                     float depth = Math.Max(0f, Math.Min(1 - distance / giver.Length, 1f));
                     if (depth > giver.mValue)
                     {
@@ -281,6 +352,7 @@ namespace VibeGoesBrrr
                     }
                 }
             }
+            Util.DebugLog("ThurstVectorProvider ran " + calculations + " calculations");
         }
     }
 }

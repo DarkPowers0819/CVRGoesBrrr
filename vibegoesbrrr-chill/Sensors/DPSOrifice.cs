@@ -18,7 +18,9 @@ namespace VibeGoesBrrr
 
         public DPSOrifice(string name, SensorOwnerType ownerType, GameObject gameObject)
           : base(name, ownerType, gameObject)
-        { }
+        {
+            this.Enabled = false;
+        }
 
         public override bool Active
         {

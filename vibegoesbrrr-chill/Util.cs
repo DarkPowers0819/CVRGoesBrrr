@@ -6,11 +6,13 @@ namespace VibeGoesBrrr
 {
     static class Util
     {
+        public static bool Debug;
         public static void DebugLog(string message)
         {
-#if DEBUG
-            MelonLoader.MelonLogger.Msg(System.ConsoleColor.Cyan, "[DEBUG] " + message);
-#endif
+            if (Debug)
+            {
+                MelonLoader.MelonLogger.Msg(System.ConsoleColor.Cyan, "[DEBUG] " + message);
+            }
         }
         public static void Warn(string message)
         {

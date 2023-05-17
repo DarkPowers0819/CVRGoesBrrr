@@ -22,7 +22,7 @@ namespace VibeGoesBrrr
         /// <summary>
         /// Version of the Mod
         /// </summary>
-        public const string Version = "0.0.3";
+        public const string Version = "0.0.6";
         /// <summary>
         /// Where to download new versions of the mod
         /// </summary>

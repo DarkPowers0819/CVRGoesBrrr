@@ -54,6 +54,9 @@ namespace VibeGoesBrrr
         // private ExpressionParam<float> mGlobalParam;
         private XSNotify XSNotify;
         private IAdultToyAPI ToyAPI;
+        private object ProcessingLock = new object();
+        private ConcurrentDictionary<string, DateTime> Timers = new ConcurrentDictionary<string, DateTime>();
+        private HashSet<Sensor> PreviousActiveSensors;
 
         public override void OnApplicationStart()
         {
@@ -73,7 +76,7 @@ namespace VibeGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "MaxIntensity", MaxIntensity, "Max Vibration Intensity %");
             MelonPreferences.CreateEntry(BuildInfo.Name, "ExpressionParametersEnabled", ExpressionParametersEnabled, "Expression Parameters");
             MelonPreferences.CreateEntry(BuildInfo.Name, "SetupMode", SetupMode, "Setup Mode");
-
+            MelonPreferences.CreateEntry(BuildInfo.Name, "Debug", false, "Debug");
             MelonPreferences.SetEntryValue(BuildInfo.Name, "SetupMode", false);
 
             MelonPreferences.CreateEntry(BuildInfo.Name, "UpdateFreq", UpdateFreq, "Update Frequency");
@@ -151,7 +154,22 @@ namespace VibeGoesBrrr
             {
                 return;
             }
-            ProcessSensorsAndVibrateDevices();
+            DateTime start = DateTime.Now;
+            lock (ProcessingLock)
+            {
+                ProcessSensorsAndVibrateDevices();
+            }
+            DateTime end = DateTime.Now;
+            TimeSpan duration = end - start;
+            string durationMessage = $"Computation Time={duration.TotalMilliseconds} milliseconds";
+            if (duration.TotalMilliseconds > 25)
+            {
+                Util.Warn(durationMessage);
+            }
+            else
+            {
+                //Util.DebugLog(durationMessage);
+            }
         }
 
         private void ToyAPI_ServerDisconnect(object sender, ServerDisconnectEventArgs e)
@@ -241,7 +259,6 @@ namespace VibeGoesBrrr
             {
                 DebugLog($"Device \"{e.Device.GetName()}\" unbound from {e.Sensor.OwnerType} sensor \"{e.Sensor.Name}\"");
             }
-            e.Device?.Stop();
             //mDeviceBattery.TryRemove(e.Device.Index, out double _); not needed?
         }
 
@@ -379,20 +396,32 @@ namespace VibeGoesBrrr
             try
             {
                 //Util.DebugLog("pre sensor manager");
+                StartTimer("Sensor Manager");
                 SensorManager.OnUpdate();
+                StopTimer("Sensor Manager");
                 //Util.DebugLog("pre Binder");
+                StartTimer("Binder Calculation");
                 Binder.OnUpdate();
-
+                StopTimer("Binder Calculation");
                 if (ToyAPI == null ) return;
 
                 //Util.DebugLog("ThrustVectorManager");
-                ThrustVectorManager.OnUpdate();
+                StartTimer("Thrust Vector Calculation");
+                ThrustVectorManager.OnUpdate(PreviousActiveSensors);
+                StopTimer("Thrust Vector Calculation");
                 //Util.DebugLog("beginning background calculations");
 
                 var activeSensors = new HashSet<Sensor>();
+                StartTimer("Drive Devices");
                 DriveDevices(activeSensors);
+                StopTimer("Drive Devices");
+                StartTimer("Calculate Hand Touch Feedback");
                 CalculateHandTouchFeedback(activeSensors);
+                StopTimer("Calculate Hand Touch Feedback");
+                StartTimer("Disable Inactive Sensors");
                 DisableInactiveSensors(activeSensors);
+                StopTimer("Disable Inactive Sensors");
+                PreviousActiveSensors = activeSensors;
             }
             catch (Exception e)
             {
@@ -452,20 +481,23 @@ namespace VibeGoesBrrr
                         sensor.Enabled = true;
                         //Util.DebugLog($"calculating between {device.Name} and {sensor.Name}");
                         // Only vibrate at the maximum intensity of all accumulated affected sensors
+                        float intensityValue = 0;
                         if (featureIndex != null)
                         {
                             int motorIndex = (int)featureIndex;
-                            motorIntensities[motorIndex] = (float)Math.Max(motorIntensities[motorIndex] ?? 0, intensity(motorIndex, sensor, motorIntensities));
+                            intensityValue = intensity(motorIndex, sensor, motorIntensities);
+                            motorIntensities[motorIndex] = (float)Math.Max(motorIntensities[motorIndex] ?? 0, intensityValue);
                         }
                         else
                         {
                             // Vibrate all motors for unindexed sensors
                             for (int motorIndex = 0; motorIndex < motorIntensities.Length; motorIndex++)
                             {
-                                float intensityValue = intensity(motorIndex, sensor, motorIntensities);
+                                intensityValue = intensity(motorIndex, sensor, motorIntensities);
                                 motorIntensities[motorIndex] = (float)Math.Max(motorIntensities[motorIndex] ?? 0, intensityValue);
                             }
                         }
+                        //Util.DebugLog($"{sensor.Name} calculated value {intensityValue}");
 
                         activeSensors.Add(sensor);
                     }
@@ -638,6 +670,7 @@ namespace VibeGoesBrrr
             XSOverlayNotifications = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "XSOverlayNotifications");
             Active = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Active");
             bool setupMode = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "SetupMode");
+            Util.Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
             CreateBackgroundProcessingTimer();
             if (!SetupMode && setupMode)
             {
@@ -687,6 +720,22 @@ namespace VibeGoesBrrr
             {
                 XSNotify.Notify(message);
             }
+        }
+        private void StartTimer(string timerName)
+        {
+#if DEBUG
+            Timers[timerName + "Start"] = DateTime.Now;
+#endif
+        }
+        private void StopTimer(string timerName)
+        {
+#if DEBUG
+            DateTime stopTime = DateTime.Now;
+            DateTime startTime = Timers[timerName + "Start"];
+            TimeSpan duration = stopTime - startTime;
+            string durationMessage = "Timer "+ timerName + $" ran for {duration.TotalMilliseconds} milliseconds";
+            Util.DebugLog(durationMessage);
+#endif
         }
     }
 }
