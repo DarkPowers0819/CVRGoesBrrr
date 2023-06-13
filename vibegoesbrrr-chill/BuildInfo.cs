@@ -14,7 +14,7 @@ namespace VibeGoesBrrr
         /// <summary>
         /// Name of the Mod
         /// </summary>
-        public const string Name = "VibeGoesBrrr";
+        public const string Name = "CVRGoesBrrr";
         /// <summary>
         /// Author of the Mod
         /// </summary>
