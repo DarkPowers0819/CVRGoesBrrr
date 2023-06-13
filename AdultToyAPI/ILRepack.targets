@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="ILRepacker" AfterTargets="Build">
+    <ItemGroup>
+      <InputAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)"/>
+      <InputAssemblies Include="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" Exclude="$(OutputPath)*.pdb;$(OutputPath)buttplug_rs_ffi.*" />
+    </ItemGroup>
+
+    <ILRepack
+      Parallel="true"
+      DebugInfo="true"
+      AllowDuplicateResources="false"
+      InputAssemblies="$(OutputPath)AdultToyAPI.dll;$(OutputPath)Buttplug.dll;$(OutputPath)deniszykov.WebSocketListener.dll;$(OutputPath)Buttplug.Client.Connectors.WebsocketConnector.dll;$(OutputPath)System.Threading.Tasks.Dataflow.dll"
+      LibraryPath="lib\;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader\Managed"
+      TargetKind="SameAsPrimaryAssembly"
+      KeyFile="$(KeyFile)"
+      OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
+    />
+  </Target>
+
+  <Target Name="CleanUpCopyLocal" AfterTargets="ILRepacker">
+    <!--<Delete Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" />-->
+    <ItemGroup>
+      <Directories Include="$([System.IO.Directory]::GetDirectories('$(OutDir)%(DestinationSubDirectory)', '*', System.IO.SearchOption.AllDirectories))" />
+      <Directories>
+        <Files>$([System.IO.Directory]::GetFiles("%(Directories.Identity)", "*", System.IO.SearchOption.AllDirectories).get_Length())</Files>
+      </Directories>
+    </ItemGroup>
+    <RemoveDir Directories="@(Directories)" Condition="%(Files)=='0'" />
+  </Target>
+</Project>
