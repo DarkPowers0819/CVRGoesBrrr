@@ -72,7 +72,7 @@
     <Compile Include="Unity\Assets\VibeGoesBrrr Internal\AttachmentTracker.cs" />
     <Compile Include="Unity\Assets\VibeGoesBrrr Internal\OrthographicDepth.cs" />
     <Compile Include="Unity\Assets\VibeGoesBrrr Internal\OrthographicFrustum.cs" />
-    <Compile Include="VibeGoesBrrrMod.cs" />
+    <Compile Include="CVRGoesBrrrMod.cs" />
     <Compile Include="Sensors\Sensor.cs" />
     <Compile Include="TouchZoneProvider.cs" />
     <Compile Include="DeviceBinder.cs" />

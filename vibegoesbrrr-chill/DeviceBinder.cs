@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using static MelonLoader.MelonLogger;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     class DeviceSensorBinder
     {

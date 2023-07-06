@@ -6,7 +6,7 @@ using UnityEngine;
 using static MelonLoader.MelonLogger;
 using UnityEngine.Events;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     class ThrustVectorProvider : ISensorProvider, IDisposable
     {
@@ -244,6 +244,7 @@ namespace VibeGoesBrrr
                 orifice.mCumulativeValue = 0f;
                 orifice.mNumPenetrators = 0;
             }
+            //ZeroOutSensors(activeSensors);
             if (activeSensors == null)
             {
                 CalculateUpdates();
@@ -253,6 +254,23 @@ namespace VibeGoesBrrr
                 CalculateSensorUpdates(activeSensors);
             }
         }
+
+        private void ZeroOutSensors(HashSet<Sensor> activeSensors)
+        {
+            foreach(var sensor in activeSensors)
+            {
+                if(sensor is Giver)
+                {
+                    (sensor as Giver).mValue = 0;
+                }
+                if(sensor is Taker)
+                {
+                    (sensor as Taker).mNumPenetrators = 0;
+                    (sensor as Taker).mCumulativeValue = 0;
+                }
+            }
+        }
+
         private void CalculateSensorUpdates(Giver giver, Taker taker)
         {
             if(giver.mMeshObject==null)
@@ -269,16 +287,16 @@ namespace VibeGoesBrrr
             if (!taker.Active || !giver.Active) return;
             float distance = Vector3.Distance(p0, p1);
             float depth = Math.Max(0f, Math.Min(1 - distance / giver.Length, 1f));
-            if (depth > giver.mValue)
-            {
-                // Util.DebugLog($"{giver.Name}: 1 - {distance} / {giver.Length} = {depth}");
+            //if (depth > giver.mValue)
+            //{
+            //    Util.DebugLog($"{giver.Name}: 1 - {distance} / {giver.Length} = {depth}");
                 giver.mValue = depth;
-            }
-            if (depth > 0)
-            {
+            //}
+            //if (depth > 0)
+            //{
                 taker.mCumulativeValue += depth;
                 taker.mNumPenetrators += 1;
-            }
+            //}
         }
         private void CalculateSensorUpdates(HashSet<Sensor> activeSensors)
         {
@@ -340,16 +358,16 @@ namespace VibeGoesBrrr
                     float distance = Vector3.Distance(p0.Value, p1.Value);
                     calculations++;
                     float depth = Math.Max(0f, Math.Min(1 - distance / giver.Length, 1f));
-                    if (depth > giver.mValue)
-                    {
-                        // Util.DebugLog($"{giver.Name}: 1 - {distance} / {giver.Length} = {depth}");
+                    //if (depth > giver.mValue)
+                    //{
+                    //    Util.DebugLog($"{giver.Name}: 1 - {distance} / {giver.Length} = {depth}");
                         giver.mValue = depth;
-                    }
-                    if (depth > 0)
-                    {
+                    //}
+                    //if (depth > 0)
+                    //{
                         taker.mCumulativeValue += depth;
                         taker.mNumPenetrators += 1;
-                    }
+                    //}
                 }
             }
             Util.DebugLog("ThurstVectorProvider ran " + calculations + " calculations");

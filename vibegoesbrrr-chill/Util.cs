@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using ABI_RC.Core.Player;
 using UnityEngine;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     static class Util
     {
         public static bool Debug;
+        public static bool DebugPerformance;
+        private static ConcurrentDictionary<string, DateTime> Timers = new ConcurrentDictionary<string, DateTime>();
         public static void DebugLog(string message)
         {
             if (Debug)
@@ -14,9 +17,20 @@ namespace VibeGoesBrrr
                 MelonLoader.MelonLogger.Msg(System.ConsoleColor.Cyan, "[DEBUG] " + message);
             }
         }
+        public static void DebugPerfLog(string message)
+        {
+            if (DebugPerformance)
+            {
+                MelonLoader.MelonLogger.Msg(System.ConsoleColor.DarkBlue, "[DEBUG] " + message);
+            }
+        }
         public static void Warn(string message)
         {
             MelonLoader.MelonLogger.Warning(message);
+        }
+        public static void Info(string message)
+        {
+            MelonLoader.MelonLogger.Msg(System.ConsoleColor.White,"[INFO] " +message);
         }
         public static void Error(string message)
         {
@@ -54,6 +68,23 @@ namespace VibeGoesBrrr
         {
             var components = c.GetComponentsInParent<T>(inactive);
             return components.Length > 0 ? components[0] : default(T);
+        }
+
+        public static void StartTimer(string timerName)
+        {
+#if DEBUG
+            Timers[timerName + "Start"] = DateTime.Now;
+#endif
+        }
+        public static void StopTimer(string timerName)
+        {
+#if DEBUG
+            DateTime stopTime = DateTime.Now;
+            DateTime startTime = Timers[timerName + "Start"];
+            TimeSpan duration = stopTime - startTime;
+            string durationMessage = "Timer " + timerName + $" ran for {duration.TotalMilliseconds} milliseconds";
+            Util.DebugPerfLog(durationMessage);
+#endif
         }
     }
 }

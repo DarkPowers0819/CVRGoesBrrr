@@ -9,9 +9,9 @@ using ABI_RC.Core.Savior;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Events;
-using VibeGoesBrrr.Unity.Assets.VibeGoesBrrr_Internal;
+using CVRGoesBrrr.Unity.Assets.VibeGoesBrrr_Internal;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     /// <summary>
     /// A utility class to add our needed bindings into CVR code. Mostly we care about Avatars and Props.
@@ -57,9 +57,10 @@ namespace VibeGoesBrrr
         /// <param name="__0"></param>
         private static void OnLocalAvatarLoad(GameObject __0)
         {
-            Util.DebugLog("OnLocalAvatarLoad");
+            Util.StartTimer("OnLocalAvatarLoad");
             LocalAvatar = __0;
             AvatarIsReady?.Invoke(null, new AvatarEventArgs { Avatar = __0, Player = null });
+            Util.StopTimer("OnLocalAvatarLoad");
         }
         /// <summary>
         /// 
@@ -67,9 +68,11 @@ namespace VibeGoesBrrr
         /// <param name="__instance"></param>
         private static void OnRemoteAvatarLoad(PuppetMaster __instance)
         {
+            Util.StartTimer("OnRemoteAvatarLoad");
             var playerDescriptor = Traverse.Create(__instance).Field("_playerDescriptor").GetValue<PlayerDescriptor>();
             Util.DebugLog($"OnRemoteAvatarLoad: {playerDescriptor.userName}");
             AvatarIsReady?.Invoke(null, new AvatarEventArgs { Avatar = __instance.avatarObject, Player = playerDescriptor });
+            Util.StopTimer("OnRemoteAvatarLoad");
         }
         /// <summary>
         /// our hook into CVR InstantiateProp. gives us notice when a prop has finished downloading. store the prop name in a list so that when SetActive is called we can get the actual GameObject.

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     public class TouchSensor : Sensor
     {

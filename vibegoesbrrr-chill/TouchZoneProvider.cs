@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using ABI.CCK.Components;
 using UnityEngine;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
   class TouchZoneProvider : ISensorProvider, IDisposable
   {

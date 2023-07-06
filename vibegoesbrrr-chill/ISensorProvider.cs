@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     public interface ISensorProvider
     {

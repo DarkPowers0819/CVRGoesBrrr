@@ -12,9 +12,9 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using static MelonLoader.MelonLogger;
-using static VibeGoesBrrr.Util;
+using static CVRGoesBrrr.Util;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     static public class NativeMethods
     {

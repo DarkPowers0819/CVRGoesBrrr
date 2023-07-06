@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     class XSNotify
     {

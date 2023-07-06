@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace VibeGoesBrrr.Unity.Assets.VibeGoesBrrr_Internal
+namespace CVRGoesBrrr.Unity.Assets.VibeGoesBrrr_Internal
 {
     public class AttachmentTracker : MonoBehaviour
     {

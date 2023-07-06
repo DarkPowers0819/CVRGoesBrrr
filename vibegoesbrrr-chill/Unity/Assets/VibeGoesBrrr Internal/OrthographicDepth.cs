@@ -6,7 +6,7 @@ using Unity.Collections;
 using System;
 #endif
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
 #if UNITY_STANDALONE
   [ExecuteInEditMode]

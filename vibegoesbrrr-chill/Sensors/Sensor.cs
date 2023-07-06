@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     public enum SensorOwnerType { LocalPlayer, RemotePlayer, World };
 
@@ -49,5 +49,10 @@ namespace VibeGoesBrrr
         private string mType;
         private string mTag;
         private SensorOwnerType mOwnerType;
+
+        internal string GetParameterName()
+        {
+            return GameObject.name;
+        }
     }
 }

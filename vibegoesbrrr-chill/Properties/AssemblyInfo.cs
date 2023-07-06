@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle(VibeGoesBrrr.BuildInfo.Name)]
+[assembly: AssemblyTitle(CVRGoesBrrr.BuildInfo.Name)]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct(VibeGoesBrrr.BuildInfo.Name)]
-[assembly: AssemblyCopyright("Created by " + VibeGoesBrrr.BuildInfo.Author)]
+[assembly: AssemblyProduct(CVRGoesBrrr.BuildInfo.Name)]
+[assembly: AssemblyCopyright("Created by " + CVRGoesBrrr.BuildInfo.Author)]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -36,5 +36,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.*")]
 //[assembly: AssemblyFileVersion(VibeGoesBrrr.BuildInfo.Version)]
 
-[assembly: MelonInfo(typeof(VibeGoesBrrr.VibeGoesBrrrMod), VibeGoesBrrr.BuildInfo.Name, VibeGoesBrrr.BuildInfo.Version, VibeGoesBrrr.BuildInfo.Author, VibeGoesBrrr.BuildInfo.DownloadLink)]
+[assembly: MelonInfo(typeof(CVRGoesBrrr.CVRGoesBrrrMod), CVRGoesBrrr.BuildInfo.Name, CVRGoesBrrr.BuildInfo.Version, CVRGoesBrrr.BuildInfo.Author, CVRGoesBrrr.BuildInfo.DownloadLink)]
 [assembly: MelonGame("Alpha Blend Interactive", "ChilloutVR")]

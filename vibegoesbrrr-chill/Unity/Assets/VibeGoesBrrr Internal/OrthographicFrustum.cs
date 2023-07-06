@@ -2,9 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using VibeGoesBrrr;
+using CVRGoesBrrr;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
 #if UNITY_STANDALONE
 [ExecuteInEditMode]

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using static MelonLoader.MelonLogger;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     class DeviceDB
     {

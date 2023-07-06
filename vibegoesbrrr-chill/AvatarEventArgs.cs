@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace VibeGoesBrrr
+namespace CVRGoesBrrr
 {
     /// <summary>
     /// An event class for notifying our virtual sensors that an avatar has been detected.
