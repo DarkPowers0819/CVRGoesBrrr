@@ -5,6 +5,7 @@ using ABI_RC.Core.Player;
 using UnityEngine;
 using static MelonLoader.MelonLogger;
 using UnityEngine.Events;
+using CVRGoesBrrr.CVRIntegration;
 
 namespace CVRGoesBrrr
 {
@@ -25,10 +26,10 @@ namespace CVRGoesBrrr
         {
             // m_avatarSetupCompleted += OnAvatarIsReady;
             // PlayerSetup.Instance.avatarSetupCompleted.AddListener(m_avatarSetupCompleted);
-            CVRHooks.AvatarIsReady += OnAvatarIsReady;
-            CVRHooks.PropIsReady += OnPropIsReady;
-            CVRHooks.PropAttached += CVRHooks_PropAttached;
-            CVRHooks.PropDettached += CVRHooks_PropDettached;
+            CVREventProcessor.AvatarIsReady += OnAvatarIsReady;
+            CVREventProcessor.PropIsReady += OnPropIsReady;
+            CVREventProcessor.PropAttached += CVRHooks_PropAttached;
+            CVREventProcessor.PropDettached += CVRHooks_PropDettached;
         }
 
         private void CVRHooks_PropDettached(object sender, GameObject e)
@@ -51,8 +52,8 @@ namespace CVRGoesBrrr
 
         public void Dispose()
         {
-            CVRHooks.AvatarIsReady -= OnAvatarIsReady;
-            CVRHooks.PropIsReady -= OnPropIsReady;
+            CVREventProcessor.AvatarIsReady -= OnAvatarIsReady;
+            CVREventProcessor.PropIsReady -= OnPropIsReady;
         }
         private void OnPropIsReady(object sender, GameObject obj)
         {
@@ -79,14 +80,14 @@ namespace CVRGoesBrrr
 
             foreach (var light in Resources.FindObjectsOfTypeAll(typeof(Light)) as Light[])
             {
-                if (CVRHooks.LocalAvatar == null || !light.transform.IsChildOf(CVRHooks.LocalAvatar.transform))
+                if (CVREventProcessor.LocalAvatar == null || !light.transform.IsChildOf(CVREventProcessor.LocalAvatar.transform))
                 {
                     MatchDPSLight(light, SensorOwnerType.World);
                 }
             }
             foreach (var gameObject in Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[])
             {
-                if (CVRHooks.LocalAvatar == null || !gameObject.transform.IsChildOf(CVRHooks.LocalAvatar.transform))
+                if (CVREventProcessor.LocalAvatar == null || !gameObject.transform.IsChildOf(CVREventProcessor.LocalAvatar.transform))
                 {
                     MatchThrustVector(gameObject, SensorOwnerType.World);
                 }

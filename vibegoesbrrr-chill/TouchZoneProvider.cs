@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ABI.CCK.Components;
+using CVRGoesBrrr.CVRIntegration;
 using UnityEngine;
 
 namespace CVRGoesBrrr
@@ -19,12 +20,12 @@ namespace CVRGoesBrrr
 
     public TouchZoneProvider()
     {
-      CVRHooks.AvatarIsReady += OnAvatarIsReady;
+            CVREventProcessor.AvatarIsReady += OnAvatarIsReady;
     }
 
     public void Dispose()
     {
-      CVRHooks.AvatarIsReady -= OnAvatarIsReady;
+            CVREventProcessor.AvatarIsReady -= OnAvatarIsReady;
     }
 
     public void OnSceneWasInitialized()
@@ -70,7 +71,7 @@ namespace CVRGoesBrrr
       foreach (var camera in args.Avatar.GetComponentsInChildren<Camera>(true)) {
         if (IsSensor(camera)) {
           if (!mSensorInstances.ContainsKey(camera.GetInstanceID())) {
-            var newSensor = new TouchSensor(camera.name, args.Avatar == CVRHooks.LocalAvatar ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer, camera);
+            var newSensor = new TouchSensor(camera.name, args.Avatar == CVREventProcessor.LocalAvatar ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer, camera);
             mSensorInstances[camera.GetInstanceID()] = newSensor; 
             SensorDiscovered?.Invoke(this, newSensor);
           }

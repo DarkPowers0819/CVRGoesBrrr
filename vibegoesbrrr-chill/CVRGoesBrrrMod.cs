@@ -17,6 +17,7 @@ using System.Threading;
 using System.Timers;
 using AdultToyAPI;
 using ABI_RC.Core.Player;
+using CVRGoesBrrr.CVRIntegration;
 
 namespace CVRGoesBrrr
 {
@@ -558,7 +559,7 @@ namespace CVRGoesBrrr
         private void CalculateHandTouchFeedback(HashSet<Sensor> activeSensors)
         {
             // Calculate and send touch feedback
-            if (TouchFeedbackEnabled && CVRHooks.LocalAvatar != null)
+            if (TouchFeedbackEnabled && CVREventProcessor.LocalAvatar != null)
             {
                 foreach (var sensor in FeedbackSensors)
                 {
@@ -583,7 +584,7 @@ namespace CVRGoesBrrr
 
                     float leftDistance = float.MaxValue;
                     float rightDistance = float.MaxValue;
-                    Animator playerLocalAvatarAnimator = CVRHooks.LocalAvatar.GetComponentInChildren<Animator>();
+                    Animator playerLocalAvatarAnimator = CVREventProcessor.LocalAvatar.GetComponentInChildren<Animator>();
                     if (playerLocalAvatarAnimator != null)
                     {
                         var leftHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.LeftHand);
