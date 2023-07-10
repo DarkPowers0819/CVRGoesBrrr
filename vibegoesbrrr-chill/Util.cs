@@ -17,20 +17,13 @@ namespace CVRGoesBrrr
                 MelonLoader.MelonLogger.Msg(System.ConsoleColor.Cyan, "[DEBUG] " + message);
             }
         }
-        public static void DebugPerfLog(string message)
-        {
-            if (DebugPerformance)
-            {
-                MelonLoader.MelonLogger.Msg(System.ConsoleColor.DarkBlue, "[DEBUG] " + message);
-            }
-        }
         public static void Warn(string message)
         {
             MelonLoader.MelonLogger.Warning(message);
         }
         public static void Info(string message)
         {
-            MelonLoader.MelonLogger.Msg(System.ConsoleColor.White,"[INFO] " +message);
+            MelonLoader.MelonLogger.Msg(System.ConsoleColor.White, "[INFO] " + message);
         }
         public static void Error(string message)
         {
@@ -72,19 +65,22 @@ namespace CVRGoesBrrr
 
         public static void StartTimer(string timerName)
         {
-#if DEBUG
             Timers[timerName + "Start"] = DateTime.Now;
-#endif
         }
-        public static void StopTimer(string timerName)
+        public static void StopTimer(string timerName, double warningThreshold)
         {
-#if DEBUG
             DateTime stopTime = DateTime.Now;
             DateTime startTime = Timers[timerName + "Start"];
             TimeSpan duration = stopTime - startTime;
             string durationMessage = "Timer " + timerName + $" ran for {duration.TotalMilliseconds} milliseconds";
-            Util.DebugPerfLog(durationMessage);
-#endif
+            if (duration.TotalMilliseconds > warningThreshold)
+            {
+                Util.Warn(durationMessage);
+            }
+            else if (DebugPerformance)
+            {
+                Util.DebugLog(durationMessage);
+            }
         }
     }
 }
