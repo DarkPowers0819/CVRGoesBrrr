@@ -73,13 +73,7 @@ namespace CVRGoesBrrr
                     {
                         string parameterName = param.Item1;
                         float intensityValue = param.Item2;
-                        Util.DebugLog($"checking if Avatar parameter {parameterName} exists");
-                        bool parameterExists = PlayerSetup.Instance.animatorManager.animator.parameters.Select((c) => c.name).Contains(parameterName);
-                        if (parameterExists)
-                        {
-                            Util.DebugLog($"setting Avatar parameter {parameterName} to {intensityValue}");
-                            PlayerSetup.Instance.changeAnimatorParam(parameterName, intensityValue);
-                        }
+                        CVRHooks.SetAdvancedAvatarParameter(parameterName, intensityValue);
                     }
                 }
             }
@@ -476,6 +470,10 @@ namespace CVRGoesBrrr
                     var motorIntensities = newDeviceIntensities[device.GetIndex()];
                     foreach (var (sensor, featureIndex) in bindings)
                     {
+                        if(!sensor.Active)
+                        {
+                            sensor.RemoveAverageValues();
+                        }
                         if (!TouchAndThrustSensors.Contains(sensor)) continue;
                         //Util.DebugLog($"{sensor.Name} is touch or thrust sensor");
                         if (!SetupMode && sensor.OwnerType == SensorOwnerType.World) continue;
@@ -487,6 +485,7 @@ namespace CVRGoesBrrr
                         if (!ThrustEnabled && (sensor is Giver || sensor is Taker)) continue;
                         //Util.DebugLog($"{sensor.Name} thrust enabled or not giver/taker");
                         sensor.Enabled = true;
+                        sensor.InitAverageValues((int)UpdateFreq);
                         //Util.DebugLog($"calculating between {device.Name} and {sensor.Name}");
                         // Only vibrate at the maximum intensity of all accumulated affected sensors
                         float intensityValue = 0;
@@ -505,7 +504,7 @@ namespace CVRGoesBrrr
                                 motorIntensities[motorIndex] = (float)Math.Max(motorIntensities[motorIndex] ?? 0, intensityValue);
                             }
                         }
-                        SetAvatarParameter(sensor, kv, intensityValue);
+                        SetAvatarParameter(sensor, intensityValue);
                         //Util.DebugLog($"{sensor.Name} calculated value {intensityValue}");
 
                         activeSensors.Add(sensor);
@@ -540,9 +539,12 @@ namespace CVRGoesBrrr
             }
         }
 
-        private void SetAvatarParameter(Sensor sensor, KeyValuePair<IAdultToy, List<(Sensor Sensor, int? Feature)>> kv, float intensityValue)
+        private void SetAvatarParameter(Sensor sensor, float intensityValue)
         {
             string parameterName = sensor.GetParameterName();
+            string averageParameterName = parameterName + "Average";
+            sensor.AddToAverage(intensityValue);
+            float averageIntensity = sensor.GetAverage();
             AdvancedAvatarParameters.Enqueue(new Tuple<string, float>(parameterName, intensityValue));
         }
 
