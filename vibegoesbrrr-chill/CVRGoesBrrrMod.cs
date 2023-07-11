@@ -546,6 +546,7 @@ namespace CVRGoesBrrr
             sensor.AddToAverage(intensityValue);
             float averageIntensity = sensor.GetAverage();
             AdvancedAvatarParameters.Enqueue(new Tuple<string, float>(parameterName, intensityValue));
+            AdvancedAvatarParameters.Enqueue(new Tuple<string, float>(averageParameterName, averageIntensity));
         }
 
         private void DisableInactiveSensors(HashSet<Sensor> activeSensors)
