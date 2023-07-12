@@ -28,7 +28,6 @@ namespace CVRGoesBrrr
         private bool TouchEnabled = true;
         private bool ThrustEnabled = true;
         private bool TouchFeedbackEnabled = true;
-        private bool AudioEnabled = false;
         private bool mIdleEnabled = false;
         private bool ExpressionParametersEnabled = true;
         private float mIdleIntensity = 5f;
@@ -36,10 +35,8 @@ namespace CVRGoesBrrr
         private float MaxIntensity = 100f;
         private float IntensityCurveExponent = 1f;
         private float UpdateFreq = 10f;
-        private float ScanDuration = 15f;
-        private float ScanWaitDuration = 5f;
+        
         private bool SetupMode = false;
-        private bool XSOverlayNotifications = true;
         private System.Timers.Timer BackgroundProcessingTimer;
         private AssetBundle Bundle;
         private Shader Shader;
@@ -86,7 +83,6 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "TouchEnabled", TouchEnabled, "Touch Vibrations");
             MelonPreferences.CreateEntry(BuildInfo.Name, "ThrustEnabled", ThrustEnabled, "Thrust Vibrations");
             MelonPreferences.CreateEntry(BuildInfo.Name, "JustUseMyToys", DeviceSensorBinder.JustUseMyDevice, "JustUseMyToys");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "AudioEnabled", AudioEnabled, "Audio Vibrations");
             MelonPreferences.CreateEntry(BuildInfo.Name, "TouchFeedbackEnabled", TouchFeedbackEnabled, "Touch Feedback");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IdleEnabled", mIdleEnabled, "Idle Vibrations");
             MelonPreferences.SetEntryValue(BuildInfo.Name, "IdleEnabled", false);
@@ -101,10 +97,6 @@ namespace CVRGoesBrrr
 
             MelonPreferences.CreateEntry(BuildInfo.Name, "UpdateFreq", UpdateFreq, "Update Frequency");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponent2", IntensityCurveExponent, "Intensity Curve Exponent");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "XSOverlayNotifications", XSOverlayNotifications, "XSOverlay Notifications");
-            // Hidden preferences
-            MelonPreferences.CreateEntry(BuildInfo.Name, "ScanDuration2", ScanDuration, "Scan Duration", null, is_hidden: true);
-            MelonPreferences.CreateEntry(BuildInfo.Name, "ScanWaitDuration2", ScanWaitDuration, "Scan Wait Duration", null, is_hidden: true);
             OnPreferencesSaved();
 
             // this.HarmonyInstance.PatchAll();
@@ -177,7 +169,10 @@ namespace CVRGoesBrrr
             Util.StartTimer("Computation Time");
             lock (ProcessingLock)
             {
-                ProcessSensorsAndVibrateDevices();
+                if (Active)
+                {
+                    ProcessSensorsAndVibrateDevices();
+                }
             }
             Util.StopTimer("Computation Time",25);
             
@@ -544,12 +539,15 @@ namespace CVRGoesBrrr
         }
         private void SetAvatarParameter(Sensor sensor, float intensityValue)
         {
-            string parameterName = sensor.GetParameterName();
-            string averageParameterName = parameterName + "Average";
-            sensor.AddToAverage(intensityValue);
-            float averageIntensity = sensor.GetAverage();
-            AdvancedAvatarParameters.Enqueue(new Tuple<string, float>(parameterName, intensityValue));
-            AdvancedAvatarParameters.Enqueue(new Tuple<string, float>(averageParameterName, averageIntensity));
+            if (ExpressionParametersEnabled)
+            {
+                string parameterName = sensor.GetParameterName();
+                string averageParameterName = parameterName + "Average";
+                sensor.AddToAverage(intensityValue);
+                float averageIntensity = sensor.GetAverage();
+                AdvancedAvatarParameters.Enqueue(new Tuple<string, float>(parameterName, intensityValue));
+                AdvancedAvatarParameters.Enqueue(new Tuple<string, float>(averageParameterName, averageIntensity));
+            }
         }
 
         private void DisableInactiveSensors(HashSet<Sensor> activeSensors)
@@ -682,7 +680,6 @@ namespace CVRGoesBrrr
         {
             TouchEnabled = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "TouchEnabled");
             ThrustEnabled = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "ThrustEnabled");
-            AudioEnabled = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "AudioEnabled");
             mIdleEnabled = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "IdleEnabled");
             ExpressionParametersEnabled = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "ExpressionParametersEnabled");
             TouchFeedbackEnabled = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "TouchFeedbackEnabled");
@@ -691,10 +688,7 @@ namespace CVRGoesBrrr
             MaxIntensity = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "MaxIntensity");
             UpdateFreq = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "UpdateFreq");
             DeviceSensorBinder.JustUseMyDevice = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "JustUseMyToys");
-            ScanDuration = Math.Max(2, MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "ScanDuration2"));
-            ScanWaitDuration = Math.Max(2, MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "ScanWaitDuration2"));
             IntensityCurveExponent = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponent2");
-            XSOverlayNotifications = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "XSOverlayNotifications");
             Active = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Active");
             bool setupMode = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "SetupMode");
             Util.Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
