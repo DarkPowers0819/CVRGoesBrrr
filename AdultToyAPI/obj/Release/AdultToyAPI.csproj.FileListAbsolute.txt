@@ -53,3 +53,4 @@ E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.csproj.CopyComple
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.pdb
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\AdultToyAPI.dll.config
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.csproj.AssemblyReference.cache

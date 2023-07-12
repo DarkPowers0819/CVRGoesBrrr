@@ -57,6 +57,7 @@ namespace CVRGoesBrrr
         private object ProcessingLock = new object();
 
         private HashSet<Sensor> PreviousActiveSensors;
+        private Dictionary<string, float> AvatarParameterValues = new Dictionary<string, float>();
         public override void OnUpdate()
         {
             base.OnUpdate();
@@ -70,7 +71,16 @@ namespace CVRGoesBrrr
                     {
                         string parameterName = param.Item1;
                         float intensityValue = param.Item2;
-                        CVRHooks.SetAdvancedAvatarParameter(parameterName, intensityValue);
+                        float previousValue = -1;
+                        if(AvatarParameterValues.ContainsKey(parameterName))
+                        {
+                            previousValue = AvatarParameterValues[parameterName];
+                        }
+                        if (previousValue != intensityValue)
+                        {
+                            AvatarParameterValues[parameterName] = intensityValue;
+                            CVRHooks.SetAdvancedAvatarParameter(parameterName, intensityValue);
+                        }
                     }
                 }
             }
