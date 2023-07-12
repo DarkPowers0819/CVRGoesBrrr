@@ -18,6 +18,7 @@ using System.Timers;
 using AdultToyAPI;
 using ABI_RC.Core.Player;
 using CVRGoesBrrr.CVRIntegration;
+using ABI_RC.Core.UI;
 
 namespace CVRGoesBrrr
 {
@@ -55,7 +56,6 @@ namespace CVRGoesBrrr
         // private AudioProvider mAudioProvider;
         private DeviceSensorBinder Binder;
         // private ExpressionParam<float> mGlobalParam;
-        private XSNotify XSNotify;
         private IAdultToyAPI ToyAPI;
         private object ProcessingLock = new object();
 
@@ -80,7 +80,6 @@ namespace CVRGoesBrrr
         }
         public override void OnApplicationStart()
         {
-            XSNotify = XSNotify.Create();
 
             MelonPreferences.CreateCategory(BuildInfo.Name, "CVR Goes Brrr~");
             MelonPreferences.CreateEntry(BuildInfo.Name, "Active", Active, "Active");
@@ -201,6 +200,7 @@ namespace CVRGoesBrrr
         {
             try
             {
+                CohtmlHud.Instance.ViewDropTextImmediate("Toy Lost", e.AdultToy.GetName(),string.Empty);
                 DeviceIntensities.Remove(e.AdultToy.GetIndex());
                 Util.Info($"Device \"{e.AdultToy.GetName()}\" disconnected");
             }
@@ -214,6 +214,10 @@ namespace CVRGoesBrrr
         {
             try
             {
+
+                CohtmlHud.Instance.ViewDropTextImmediate("Toy Detected", e.AdultToy.GetName(), "Nice!");
+
+
                 mMaxSeenDevices = Math.Max(mMaxSeenDevices, e.AdultToy.GetIndex());
                 var motorCount = e.AdultToy.MotorCount();
                 if (motorCount > 0)
@@ -250,9 +254,6 @@ namespace CVRGoesBrrr
                 {
                     DebugLog($"- {msgInfo.ToString()}");
                 }
-
-
-                Notify($"<b>{e.AdultToy.GetName()}</b> connected");
             }
             catch (Exception error)
             {
@@ -741,12 +742,5 @@ namespace CVRGoesBrrr
             catch { }
         }
 
-        void Notify(string message)
-        {
-            if (XSNotify != null && XSOverlayNotifications)
-            {
-                XSNotify.Notify(message);
-            }
-        }
     }
 }

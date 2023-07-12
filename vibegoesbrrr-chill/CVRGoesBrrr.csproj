@@ -84,7 +84,6 @@
     <Compile Include="ThrustVectorProvider.cs" />
     <Compile Include="CVRIntegration\CVRHooks.cs" />
     <Compile Include="DeviceDB.cs" />
-    <Compile Include="XSOverlay.cs" />
     <!-- <Compile Include="AudioProvider.cs" /> -->
   </ItemGroup>
   <ItemGroup>
@@ -133,7 +132,7 @@
       <Version>2.0.18.2</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.2</Version>
+      <Version>13.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

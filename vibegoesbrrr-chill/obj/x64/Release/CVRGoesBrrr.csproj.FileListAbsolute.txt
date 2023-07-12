@@ -35,3 +35,4 @@ E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.CoreCompileInputs.cache
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.CopyComplete
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AdultToyAPI.dll.config
