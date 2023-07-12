@@ -22,7 +22,7 @@ namespace CVRGoesBrrr
         /// <summary>
         /// Version of the Mod
         /// </summary>
-        public const string Version = "0.0.7";
+        public const string Version = "0.0.8";
         /// <summary>
         /// Where to download new versions of the mod
         /// </summary>

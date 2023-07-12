@@ -473,6 +473,7 @@ namespace CVRGoesBrrr
                         if(!sensor.Active)
                         {
                             sensor.RemoveAverageValues();
+                            ResetAvatarParameter(sensor);
                         }
                         if (!TouchAndThrustSensors.Contains(sensor)) continue;
                         //Util.DebugLog($"{sensor.Name} is touch or thrust sensor");
@@ -505,8 +506,6 @@ namespace CVRGoesBrrr
                             }
                         }
                         SetAvatarParameter(sensor, intensityValue);
-                        //Util.DebugLog($"{sensor.Name} calculated value {intensityValue}");
-
                         activeSensors.Add(sensor);
                     }
                 }
@@ -538,7 +537,10 @@ namespace CVRGoesBrrr
                 }
             }
         }
-
+        private void ResetAvatarParameter(Sensor sensor)
+        {
+            SetAvatarParameter(sensor, 0);
+        }
         private void SetAvatarParameter(Sensor sensor, float intensityValue)
         {
             string parameterName = sensor.GetParameterName();

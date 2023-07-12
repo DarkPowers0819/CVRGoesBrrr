@@ -266,6 +266,11 @@ namespace AdultToyAPI
 
         private void OnButtplugDeviceAdded(object sender, Buttplug.Client.DeviceAddedEventArgs e)
         {
+            if (Debug)
+            {
+                string json = JsonConvert.SerializeObject(e.Device);
+                DebugLog(json);
+            }
             DeviceAdded.Invoke(sender, new DeviceAddedEventArgs(new AdultToy(e.Device)));
         }
 

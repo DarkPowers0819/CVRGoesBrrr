@@ -39,14 +39,14 @@
     <Reference Include="Buttplug.Client.Connectors.WebsocketConnector, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\vibegoesbrrr-chill\packages\Buttplug.Client.Connectors.WebsocketConnector.3.0.0\lib\netstandard2.0\Buttplug.Client.Connectors.WebsocketConnector.dll</HintPath>
     </Reference>
-    <Reference Include="deniszykov.WebSocketListener, Version=4.2.15.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
-      <HintPath>..\vibegoesbrrr-chill\packages\deniszykov.WebSocketListener.4.2.15\lib\net45\deniszykov.WebSocketListener.dll</HintPath>
+    <Reference Include="deniszykov.WebSocketListener, Version=4.2.16.0, Culture=neutral, PublicKeyToken=7f78616efb4a208d, processorArchitecture=MSIL">
+      <HintPath>..\vibegoesbrrr-chill\packages\deniszykov.WebSocketListener.4.2.16\lib\net45\deniszykov.WebSocketListener.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader\MelonLoader.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\vibegoesbrrr-chill\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\vibegoesbrrr-chill\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -74,6 +74,7 @@
     <Compile Include="ServerDisconnectEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="ILRepack.targets" />
     <None Include="packages.config" />
   </ItemGroup>

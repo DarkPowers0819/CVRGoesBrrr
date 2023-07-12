@@ -47,7 +47,8 @@ namespace CVRGoesBrrr
 
         public override GameObject GameObject => mGameObject;
         public override bool Enabled { get; set; }
-        public override float Value => mValue;
+        public override float Value { get => mValue;}
+
         /// <summary>
         /// based on how DPS sets up penetrator we can assume the furthest forward vertex has the highest Z value.
         /// </summary>
