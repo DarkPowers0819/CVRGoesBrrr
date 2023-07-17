@@ -10,6 +10,11 @@ namespace AdultToyAPI
     public class AdultToy : IAdultToy
     {
         private Buttplug.Client.ButtplugClientDevice Device;
+        private DateTime LastBatteryCheck;
+        private double LastBatteryValue;
+
+        internal double LastWarnedBattery;
+
         public AdultToy(Buttplug.Client.ButtplugClientDevice device)
         {
             Device = device;
@@ -106,6 +111,51 @@ namespace AdultToyAPI
         public void Stop()
         {
             Device.Stop();
+        }
+
+        public bool HasBattery()
+        {
+            return Device.HasBattery;
+        }
+        /// <summary>
+        /// Returns the Battery Level of the toy. Do not call from the same thread as the Device Added Event. Normalized between 0.0 and 1.0
+        /// </summary>
+        /// <returns></returns>
+        internal double GetBatteryLevelSync()
+        {
+            return GetBatteryLevelInternal(null);
+        }
+        /// <summary>
+        /// Returns the Battery Level of the toy. Do not call from the same thread as the Device Added Event. Normalized between 0.0 and 1.0
+        /// </summary>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        internal double GetBatteryLevelSync(int timeout)
+        {
+            return GetBatteryLevelInternal(timeout);
+        }
+        private double GetBatteryLevelInternal(int? timeout)
+        {
+            if (LastBatteryCheck == null || (DateTime.Now - LastBatteryCheck).TotalMinutes > 1)
+            {
+                LastBatteryCheck = DateTime.Now;
+                var batteryTask = Device.BatteryAsync();
+                if (timeout.HasValue)
+                {
+                    batteryTask.Wait(timeout.GetValueOrDefault());
+                }
+                else
+                { 
+                    batteryTask.Wait(); 
+                }
+                LastBatteryValue = batteryTask.Result;
+                return LastBatteryValue;
+            }
+            return LastBatteryValue;
+        }
+        public double GetBatteryLevel()
+        {
+            return LastBatteryValue;
         }
     }
 }

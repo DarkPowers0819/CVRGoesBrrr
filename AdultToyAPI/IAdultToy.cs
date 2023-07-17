@@ -17,6 +17,13 @@ namespace AdultToyAPI
         bool SupportsInflate();
         bool SupportsPosition();
 
+        bool HasBattery();
+        /// <summary>
+        /// Returns the Battery Level of the toy. Do not call from the same thread as the Device Added Event. Normalized between 0.0 and 1.0
+        /// </summary>
+        /// <returns></returns>
+        double GetBatteryLevel();
+
         int MotorCount();
         /// <summary>
         /// returns a list of the supported motors of this device

@@ -104,7 +104,6 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "Debug", false, "Debug");
             MelonPreferences.CreateEntry(BuildInfo.Name, "DebugPerformance", false, "Debug Performance");
             MelonPreferences.SetEntryValue(BuildInfo.Name, "SetupMode", false);
-
             MelonPreferences.CreateEntry(BuildInfo.Name, "UpdateFreq", UpdateFreq, "Update Frequency");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponent2", IntensityCurveExponent, "Intensity Curve Exponent");
             OnPreferencesSaved();
@@ -135,6 +134,7 @@ namespace CVRGoesBrrr
 
             LoadAssets();
         }
+
         public void CreateBackgroundProcessingTimer()
         {
             if (BackgroundProcessingTimer != null)
@@ -205,7 +205,6 @@ namespace CVRGoesBrrr
         {
             try
             {
-                CohtmlHud.Instance.ViewDropTextImmediate("Toy Lost", e.AdultToy.GetName(),string.Empty);
                 DeviceIntensities.Remove(e.AdultToy.GetIndex());
                 Util.Info($"Device \"{e.AdultToy.GetName()}\" disconnected");
             }
@@ -219,9 +218,6 @@ namespace CVRGoesBrrr
         {
             try
             {
-
-                CohtmlHud.Instance.ViewDropTextImmediate("Toy Detected", e.AdultToy.GetName(), "Nice!");
-
 
                 mMaxSeenDevices = Math.Max(mMaxSeenDevices, e.AdultToy.GetIndex());
                 var motorCount = e.AdultToy.MotorCount();
@@ -277,7 +273,6 @@ namespace CVRGoesBrrr
             {
                 DebugLog($"Device \"{e.Device.GetName()}\" unbound from {e.Sensor.OwnerType} sensor \"{e.Sensor.Name}\"");
             }
-            //mDeviceBattery.TryRemove(e.Device.Index, out double _); not needed?
         }
 
         private void OnBindingAdded(object sender, (IAdultToy Device, Sensor Sensor, int? Feature) e)
@@ -518,7 +513,7 @@ namespace CVRGoesBrrr
             }
             List<Task> commands = new List<Task>();
             // Send device commands
-            foreach (var device in ToyAPI.GetConnectedDevices())
+            foreach (var device in Devices)
             {
                 var motorTypes = device.GetMotorTypes();
                 if (!newDeviceIntensities.ContainsKey(device.GetIndex())) continue;

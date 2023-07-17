@@ -1,4 +1,5 @@
-﻿using Buttplug.Client;
+﻿using ABI_RC.Core.UI;
+using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
 using Buttplug.Core;
 using Buttplug.Core.Messages;
@@ -47,10 +48,12 @@ namespace AdultToyAPI
         System.Timers.Timer ConnectToIntifaceTimer;
         System.Timers.Timer SendDeviceCommandsTimer;
         System.Timers.Timer ScanForDevicesTimer;
+        System.Timers.Timer BatteryCheckTime;
         private ButtplugClient Buttplug = null;
         Process IntifaceProcess = null;
         bool ClosingApp = false;
         private ConcurrentQueue<ScalarSubcommand> DeviceCommandQueue = new ConcurrentQueue<ScalarSubcommand>();
+        private ConcurrentDictionary<uint,AdultToy> KnownDevices;
         Task DeviceScanningTask;
         object DownloadLock = new object();
         object RunIntifaceCLILock = new object();
@@ -116,6 +119,40 @@ namespace AdultToyAPI
             ScanForDevicesTimer.AutoReset = true;
             ScanForDevicesTimer.Enabled = true;
             ScanForDevicesTimer.Start();
+
+            BatteryCheckTime = new System.Timers.Timer(60 * 1000);
+            ScanForDevicesTimer.Elapsed += BatteryCheckTask;
+            ScanForDevicesTimer.AutoReset = true;
+            ScanForDevicesTimer.Enabled = true;
+            ScanForDevicesTimer.Start();
+        }
+
+        private void BatteryCheckTask(object sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                foreach (var device in KnownDevices)
+                {
+                    double battery = device.Value.GetBatteryLevelSync();
+                    WarnLowBattery(battery, device.Value);
+                }
+            }catch(Exception error)
+            {
+                this.ErrorLog(error.ToString());
+            }
+        }
+
+        private void WarnLowBattery(double battery, AdultToy device)
+        {
+            if(battery<.06)
+            {
+                if(device.LastWarnedBattery!=battery)
+                {
+                    double batteryPercent = battery * 100;
+                    CohtmlHud.Instance.ViewDropTextImmediate("Low Battery", $"{batteryPercent:00.0} percent", device.GetName());
+                    device.LastWarnedBattery = battery;
+                }
+            }
         }
 
         private void RunScanningTask(object sender, ElapsedEventArgs e)
@@ -261,7 +298,18 @@ namespace AdultToyAPI
 
         private void OnButtplugDeviceRemoved(object sender, Buttplug.Client.DeviceRemovedEventArgs e)
         {
-            DeviceRemoved.Invoke(sender, new DeviceRemovedEventArgs(new AdultToy(e.Device)));
+            AdultToy device = null;
+            if(KnownDevices.ContainsKey(e.Device.Index))
+            {
+                device = KnownDevices[e.Device.Index];
+                KnownDevices.TryRemove(e.Device.Index, out device);
+            }
+            else
+            {
+                device = new AdultToy(e.Device);
+            }
+            CohtmlHud.Instance.ViewDropTextImmediate("Toy Lost", device.GetName(), string.Empty);
+            DeviceRemoved.Invoke(sender, new DeviceRemovedEventArgs(device));
         }
 
         private void OnButtplugDeviceAdded(object sender, Buttplug.Client.DeviceAddedEventArgs e)
@@ -271,7 +319,19 @@ namespace AdultToyAPI
                 string json = JsonConvert.SerializeObject(e.Device);
                 DebugLog(json);
             }
-            DeviceAdded.Invoke(sender, new DeviceAddedEventArgs(new AdultToy(e.Device)));
+            AdultToy device = null;
+            if (KnownDevices.ContainsKey(e.Device.Index))
+            {
+                device = KnownDevices[e.Device.Index];
+                
+            }
+            else
+            {
+                device = new AdultToy(e.Device);
+                KnownDevices[e.Device.Index] = device;
+            }
+            CohtmlHud.Instance.ViewDropTextImmediate("Toy Detected", device.GetName(), "Nice!");
+            DeviceAdded.Invoke(sender, new DeviceAddedEventArgs(device));
         }
 
         private void OnButtplugServerDisconnect(object sender, EventArgs e)
@@ -474,9 +534,9 @@ namespace AdultToyAPI
             List<IAdultToy> devicesToReturn = new List<IAdultToy>();
             if (IsConnected())
             {
-                foreach (var device in Buttplug.Devices)
+                foreach (var device in KnownDevices)
                 {
-                    devicesToReturn.Add(new AdultToy(device));
+                    devicesToReturn.Add(device.Value);
                 }
             }
             return devicesToReturn;
