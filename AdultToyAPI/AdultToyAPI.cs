@@ -53,7 +53,7 @@ namespace AdultToyAPI
         Process IntifaceProcess = null;
         bool ClosingApp = false;
         private ConcurrentQueue<ScalarSubcommand> DeviceCommandQueue = new ConcurrentQueue<ScalarSubcommand>();
-        private ConcurrentDictionary<uint,AdultToy> KnownDevices;
+        private ConcurrentDictionary<uint,AdultToy> KnownDevices = new ConcurrentDictionary<uint, AdultToy>();
         Task DeviceScanningTask;
         object DownloadLock = new object();
         object RunIntifaceCLILock = new object();
@@ -133,8 +133,21 @@ namespace AdultToyAPI
             {
                 foreach (var device in KnownDevices)
                 {
-                    double battery = device.Value.GetBatteryLevelSync();
-                    WarnLowBattery(battery, device.Value);
+                    try
+                    {
+                        if (device.Value.HasBattery())
+                        {
+                            double battery = device.Value.GetBatteryLevelSync();
+                            WarnLowBattery(battery, device.Value);
+                        }
+                    }catch(Exception ex)
+                    {
+                        this.ErrorLog("Unable to read battery of device - " + device.Value.GetName());
+                        this.ErrorLog(ex.ToString());
+                        AdultToy altDevice = null;
+                        KnownDevices.TryRemove(device.Key, out altDevice);
+                        return;
+                    }
                 }
             }catch(Exception error)
             {
@@ -144,12 +157,14 @@ namespace AdultToyAPI
 
         private void WarnLowBattery(double battery, AdultToy device)
         {
-            if(battery<.06)
+            double batteryPercent = battery * 100;
+            string batteryStr = $"{batteryPercent:00.0} percent";
+            DebugLog(device.GetName() + " - " + batteryStr);
+            if (battery<.10)
             {
                 if(device.LastWarnedBattery!=battery)
                 {
-                    double batteryPercent = battery * 100;
-                    CohtmlHud.Instance.ViewDropTextImmediate("Low Battery", $"{batteryPercent:00.0} percent", device.GetName());
+                    CohtmlHud.Instance.ViewDropTextImmediate("Low Battery", batteryStr, device.GetName());
                     device.LastWarnedBattery = battery;
                 }
             }
@@ -199,6 +214,7 @@ namespace AdultToyAPI
         {
             lock (RunIntifaceCLILock)
             {
+                KnownDevices = new ConcurrentDictionary<uint, AdultToy>();
                 IntifaceProcess.Kill();
             }
         }
@@ -260,7 +276,6 @@ namespace AdultToyAPI
             try
             {
                 Buttplug = new ButtplugClient(BuildInfo.Name);
-                
 
                 string ServerURI = IntifaceServerURI + ":" + IntifaceServerPort+"/";
 
@@ -323,13 +338,13 @@ namespace AdultToyAPI
             if (KnownDevices.ContainsKey(e.Device.Index))
             {
                 device = KnownDevices[e.Device.Index];
-                
             }
             else
             {
                 device = new AdultToy(e.Device);
                 KnownDevices[e.Device.Index] = device;
             }
+            DebugLog("Toy Detected, " + device.GetName() + ", Nice!");
             CohtmlHud.Instance.ViewDropTextImmediate("Toy Detected", device.GetName(), "Nice!");
             DeviceAdded.Invoke(sender, new DeviceAddedEventArgs(device));
         }
@@ -509,11 +524,12 @@ namespace AdultToyAPI
                     
                     options += $" --websocket-port {IntifaceServerPort}";
                     var startInfo = new ProcessStartInfo(target.FullName, options);
-                    startInfo.UseShellExecute = true;
+                    startInfo.UseShellExecute = false;
+                    //startInfo.RedirectStandardOutput = true;
                     startInfo.WorkingDirectory = Environment.CurrentDirectory;
                     //startInfo.RedirectStandardError = true;
                     //startInfo.RedirectStandardOutput = true;
-
+                    KnownDevices = new ConcurrentDictionary<uint, AdultToy>();
                     IntifaceProcess = Process.Start(startInfo);
                     IntifaceProcess.EnableRaisingEvents = true;
                     IntifaceProcess.OutputDataReceived += (sender, args) => DebugLog(args.Data);
