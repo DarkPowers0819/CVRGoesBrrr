@@ -214,7 +214,7 @@ namespace AdultToyAPI
         {
             lock (RunIntifaceCLILock)
             {
-                KnownDevices = new ConcurrentDictionary<uint, AdultToy>();
+                RemoveAllKnownDevices();
                 IntifaceProcess.Kill();
             }
         }
@@ -275,6 +275,14 @@ namespace AdultToyAPI
             }
             try
             {
+                /* removing known devices because Intiface has an odd issue.
+                 * when using multiple devices and having connectivity problems, the Intiface may internally restart.
+                 * If Intiface internally restarts & reconnects devices, their IDs may change.
+                 * additionally, we wont get the device added messages.
+                 * So I think it's best for now to pretend like we don't know what's connected anymore.
+                */
+                RemoveAllKnownDevices();
+                
                 Buttplug = new ButtplugClient(BuildInfo.Name);
 
                 string ServerURI = IntifaceServerURI + ":" + IntifaceServerPort+"/";
@@ -306,6 +314,15 @@ namespace AdultToyAPI
             return true;
         }
 
+        private void RemoveAllKnownDevices()
+        {
+            var listOfDevices = KnownDevices.ToList();
+            foreach (var deviceToRemove in listOfDevices)
+            {
+                OnDeviceRemoved(this, deviceToRemove.Value);
+            }
+        }
+
         private void OnButtplugErrorReceived(object sender, ButtplugExceptionEventArgs e)
         {
             ErrorReceived.Invoke(sender, new ErrorEventArgs());
@@ -313,16 +330,19 @@ namespace AdultToyAPI
 
         private void OnButtplugDeviceRemoved(object sender, Buttplug.Client.DeviceRemovedEventArgs e)
         {
-            AdultToy device = null;
-            if(KnownDevices.ContainsKey(e.Device.Index))
+            DebugLog("intiface lost device index: " + e.Device.Index);
+            AdultToy device = new AdultToy(e.Device);
+            OnDeviceRemoved(sender,device);
+        }
+        private void OnDeviceRemoved(object sender,AdultToy device)
+        {
+            uint index = (uint)device.GetIndex();
+            if (KnownDevices.ContainsKey(index))
             {
-                device = KnownDevices[e.Device.Index];
-                KnownDevices.TryRemove(e.Device.Index, out device);
+                device = KnownDevices[index];
+                KnownDevices.TryRemove(index, out device);
             }
-            else
-            {
-                device = new AdultToy(e.Device);
-            }
+            DebugLog("Toy Lost, "+device.GetName()+", sad");
             CohtmlHud.Instance.ViewDropTextImmediate("Toy Lost", device.GetName(), string.Empty);
             DeviceRemoved.Invoke(sender, new DeviceRemovedEventArgs(device));
         }
@@ -529,7 +549,7 @@ namespace AdultToyAPI
                     startInfo.WorkingDirectory = Environment.CurrentDirectory;
                     //startInfo.RedirectStandardError = true;
                     //startInfo.RedirectStandardOutput = true;
-                    KnownDevices = new ConcurrentDictionary<uint, AdultToy>();
+                    RemoveAllKnownDevices();
                     IntifaceProcess = Process.Start(startInfo);
                     IntifaceProcess.EnableRaisingEvents = true;
                     IntifaceProcess.OutputDataReceived += (sender, args) => DebugLog(args.Data);
