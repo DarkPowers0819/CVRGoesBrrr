@@ -152,4 +152,3 @@ E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Cohtml.RenderingBackend.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Properties.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\TobiiXRG2OM.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Mathematics.Extensions.dll
-E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.csproj.AssemblyReference.cache
