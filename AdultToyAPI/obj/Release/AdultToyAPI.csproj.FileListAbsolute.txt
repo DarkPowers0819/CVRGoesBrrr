@@ -152,3 +152,10 @@ E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Cohtml.RenderingBackend.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Properties.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\TobiiXRG2OM.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Mathematics.Extensions.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Threading.Channels.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Threading.Tasks.Extensions.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.ValueTuple.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Runtime.CompilerServices.Unsafe.xml
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Threading.Channels.xml
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Threading.Tasks.Extensions.xml
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.ValueTuple.xml
