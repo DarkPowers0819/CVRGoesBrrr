@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    ".NETFramework,Version=v4.7.2": {
+    ".NETFramework,Version=v4.8": {
       "ILRepack/2.1.0-beta1": {
         "type": "package"
       },
@@ -30,7 +30,7 @@
         }
       }
     },
-    ".NETFramework,Version=v4.7.2/win-x64": {
+    ".NETFramework,Version=v4.8/win-x64": {
       "ILRepack/2.1.0-beta1": {
         "type": "package"
       },
@@ -124,7 +124,7 @@
     }
   },
   "projectFileDependencyGroups": {
-    ".NETFramework,Version=v4.7.2": [
+    ".NETFramework,Version=v4.8": [
       "AdultToyAPI >= 1.0.0",
       "ILRepack >= 2.1.0-beta1",
       "ILRepack.Lib.MSBuild.Task >= 2.0.18.2",
@@ -157,14 +157,14 @@
         "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net472"
+        "net48"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net472": {
+        "net48": {
           "projectReferences": {
             "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
               "projectPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj"
@@ -174,7 +174,7 @@
       }
     },
     "frameworks": {
-      "net472": {
+      "net48": {
         "dependencies": {
           "ILRepack": {
             "target": "Package",
