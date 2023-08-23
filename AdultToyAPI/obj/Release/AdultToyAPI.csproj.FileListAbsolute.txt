@@ -84,6 +84,7 @@ E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\AVProVideo.Runtime.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\UnityEngine.XRModule.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.XR.OpenVR.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\SteamVR.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\TobiiXRSDK.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\UnityEngine.VideoModule.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.XR.Management.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\MagicaCloth.dll
@@ -91,7 +92,6 @@ E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\VivoxUnity.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\NicoKuroKusagi.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Cohtml.Runtime.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Serialization.dll
-E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\TobiiXRSDK.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Oculus.LipSync.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\UniTask.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\ICSharpCode.SharpZipLib.dll
@@ -161,8 +161,8 @@ E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Burst.Unsafe.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Jobs.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Valve.Newtonsoft.Json.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\UnityEngine.SpatialTracking.dll
-E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Cohtml.RenderingBackend.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\TobiiXRG2OM.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Cohtml.RenderingBackend.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\Unity.Mathematics.Extensions.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\WebSocketDotNet.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Numerics.Vectors.dll
@@ -173,8 +173,8 @@ E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Threading.Channels.xml
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Threading.Tasks.Dataflow.xml
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.Threading.Tasks.Extensions.xml
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\bin\Release\System.ValueTuple.xml
-E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.csproj.AssemblyReference.cache
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.csproj.CoreCompileInputs.cache
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.csproj.CopyComplete
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.pdb
+E:\CVRGoesBrrr\CVRGoesBrrr\AdultToyAPI\obj\Release\AdultToyAPI.csproj.AssemblyReference.cache

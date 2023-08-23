@@ -19,9 +19,13 @@ E:\vibegoesbrrr-chill\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.csproj.Copy
 E:\vibegoesbrrr-chill\vibegoesbrrr-chill\obj\x64\Release\CVRGoesBrrr.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\CVRGoesBrrr.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\Newtonsoft.Json.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\0Harmony.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AdultToyAPI.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\MelonLoader.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\UnityEngine.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\Mono.Cecil.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\MonoMod.Utils.dll
+E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\MonoMod.RuntimeDetour.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\bHapticsLib.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AssetRipper.VersionUtilities.dll
 E:\CVRGoesBrrr\CVRGoesBrrr\vibegoesbrrr-chill\bin\release\x64\AssetsTools.NET.dll

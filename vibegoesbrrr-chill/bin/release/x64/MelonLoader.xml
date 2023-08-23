@@ -4,6 +4,17 @@
         <name>MelonLoader</name>
     </assembly>
     <members>
+        <member name="P:MelonLoader.MelonAdditionalCreditsAttribute.Credits">
+            <summary>
+            Any additional credits that the mod author might want to include
+            </summary>
+        </member>
+        <member name="M:MelonLoader.MelonAdditionalCreditsAttribute.#ctor(System.String)">
+            <summary>
+            AdditionalCredits constructor
+            </summary>
+            <param name="credits">The additional credits of the mod</param>
+        </member>
         <member name="P:MelonLoader.MelonAdditionalDependenciesAttribute.AssemblyNames">
             <summary>
             The (simple) assembly names of Additional Dependencies that aren't directly referenced but should still be regarded as important.
@@ -14,9 +25,19 @@
             Color of the Author Log.
             </summary>
         </member>
+        <member name="P:MelonLoader.MelonAuthorColorAttribute.DrawingColor">
+            <summary>
+            Color of the Author Log.
+            </summary>
+        </member>
         <member name="P:MelonLoader.MelonColorAttribute.Color">
             <summary>
             Color of the Melon.
+            </summary>
+        </member>
+        <member name="P:MelonLoader.MelonColorAttribute.DrawingColor">
+            <summary>
+            Color of the Author Log.
             </summary>
         </member>
         <member name="P:MelonLoader.MelonGameAttribute.Developer">
@@ -424,7 +445,7 @@
             Called before a Melon starts initializing.
             </summary>
         </member>
-        <member name="M:MelonLoader.MelonBase.CreateWrapper``1(System.String,System.String,System.String,MelonLoader.MelonGameAttribute[],MelonLoader.MelonProcessAttribute[],System.Int32,System.Nullable{System.ConsoleColor},System.Nullable{System.ConsoleColor},System.String)">
+        <member name="M:MelonLoader.MelonBase.CreateWrapper``1(System.String,System.String,System.String,MelonLoader.MelonGameAttribute[],MelonLoader.MelonProcessAttribute[],System.Int32,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color},System.String)">
             <summary>
             Creates a new Melon instance for a Wrapper.
             </summary>
@@ -457,6 +478,11 @@
         <member name="P:MelonLoader.MelonBase.Info">
             <summary>
             Info Attribute of the Melon.
+            </summary>
+        </member>
+        <member name="P:MelonLoader.MelonBase.AdditionalCredits">
+            <summary>
+            AdditionalCredits Attribute of the Melon
             </summary>
         </member>
         <member name="P:MelonLoader.MelonBase.SupportedProcesses">
@@ -689,6 +715,49 @@
             A base for external MelonLoader modules.
             </summary>
         </member>
+        <member name="T:MelonLoader.Pastel.ConsoleExtensions">
+            <summary>
+            Controls colored console output by <see langword="Pastel"/>.
+            </summary>
+        </member>
+        <member name="M:MelonLoader.Pastel.ConsoleExtensions.Enable">
+            <summary>
+            Enables any future console color output produced by Pastel.
+            </summary>
+        </member>
+        <member name="M:MelonLoader.Pastel.ConsoleExtensions.Disable">
+            <summary>
+            Disables any future console color output produced by Pastel.
+            </summary>
+        </member>
+        <member name="M:MelonLoader.Pastel.ConsoleExtensions.Pastel(System.String,System.Drawing.Color)">
+            <summary>
+            Returns a string wrapped in an ANSI foreground color code using the specified color.
+            </summary>
+            <param name="input">The string to color.</param>
+            <param name="color">The color to use on the specified string.</param>
+        </member>
+        <member name="M:MelonLoader.Pastel.ConsoleExtensions.Pastel(System.String,System.String)">
+            <summary>
+            Returns a string wrapped in an ANSI foreground color code using the specified color.
+            </summary>
+            <param name="input">The string to color.</param>
+            <param name="hexColor">The color to use on the specified string.<para>Supported format: [#]RRGGBB.</para></param>
+        </member>
+        <member name="M:MelonLoader.Pastel.ConsoleExtensions.PastelBg(System.String,System.Drawing.Color)">
+            <summary>
+            Returns a string wrapped in an ANSI background color code using the specified color.
+            </summary>
+            <param name="input">The string to color.</param>
+            <param name="color">The color to use on the specified string.</param>
+        </member>
+        <member name="M:MelonLoader.Pastel.ConsoleExtensions.PastelBg(System.String,System.String)">
+            <summary>
+            Returns a string wrapped in an ANSI background color code using the specified color.
+            </summary>
+            <param name="input">The string to color.</param>
+            <param name="hexColor">The color to use on the specified string.<para>Supported format: [#]RRGGBB.</para></param>
+        </member>
         <member name="F:MelonLoader.MelonPreferences.OnPreferencesLoaded">
             <summary>
             Occurs when a Preferences File has been loaded.
@@ -703,27 +772,6 @@
             <para>
             <see cref="T:System.String"/>: Path of the Preferences File.
             </para>
-            </summary>
-        </member>
-        <member name="T:MelonLoader.Properties.Resources">
-            <summary>
-              A strongly-typed resource class, for looking up localized strings, etc.
-            </summary>
-        </member>
-        <member name="P:MelonLoader.Properties.Resources.ResourceManager">
-            <summary>
-              Returns the cached ResourceManager instance used by this class.
-            </summary>
-        </member>
-        <member name="P:MelonLoader.Properties.Resources.Culture">
-            <summary>
-              Overrides the current thread's CurrentUICulture property for all
-              resource lookups using this strongly typed resource class.
-            </summary>
-        </member>
-        <member name="P:MelonLoader.Properties.Resources.classdata">
-            <summary>
-              Looks up a localized resource of type System.Byte[].
             </summary>
         </member>
         <member name="T:MelonLoader.ICSharpCode.SharpZipLib.BZip2.BZip2">

@@ -11,7 +11,7 @@
       DebugInfo="true"
       AllowDuplicateResources="false"
       InputAssemblies="$(OutputPath)CVRGoesBrrr.dll;"
-      LibraryPath="lib\;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader\Managed"
+      LibraryPath="lib\;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader\net35;C:\Program Files (x86)\Steam\steamapps\common\ChilloutVR\MelonLoader\Managed"
       TargetKind="SameAsPrimaryAssembly"
       KeyFile="$(KeyFile)"
       OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
