@@ -14,10 +14,14 @@
       "Newtonsoft.Json/13.0.3": {
         "type": "package",
         "compile": {
-          "lib/net45/Newtonsoft.Json.dll": {}
+          "lib/net45/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/net45/Newtonsoft.Json.dll": {}
+          "lib/net45/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
         }
       },
       "AdultToyAPI/1.0.0": {
@@ -43,10 +47,14 @@
       "Newtonsoft.Json/13.0.3": {
         "type": "package",
         "compile": {
-          "lib/net45/Newtonsoft.Json.dll": {}
+          "lib/net45/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/net45/Newtonsoft.Json.dll": {}
+          "lib/net45/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
         }
       },
       "AdultToyAPI/1.0.0": {
@@ -139,11 +147,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
+      "projectUniqueName": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
       "projectName": "CVRGoesBrrr",
-      "projectPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
+      "projectPath": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
       "packagesPath": "C:\\Users\\ryanb\\.nuget\\packages\\",
-      "outputPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\obj\\",
+      "outputPath": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\obj\\",
       "projectStyle": "PackageReference",
       "skipContentFileWrite": true,
       "fallbackFolders": [
@@ -166,8 +174,8 @@
       "frameworks": {
         "net48": {
           "projectReferences": {
-            "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
-              "projectPath": "E:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj"
+            "D:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
+              "projectPath": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj"
             }
           }
         }

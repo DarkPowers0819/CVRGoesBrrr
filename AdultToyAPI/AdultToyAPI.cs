@@ -542,13 +542,12 @@ namespace AdultToyAPI
                         options += "--device-websocket-server-port " + DeviceWebsocketServerPort;
                     }
                     
-                    options += $" --websocket-port {IntifaceServerPort}";
+                    options += $" --websocket-port {IntifaceServerPort} --log error";
+                    DebugLog("Intiface engine start parameters: " + options);
                     var startInfo = new ProcessStartInfo(target.FullName, options);
                     startInfo.UseShellExecute = false;
-                    //startInfo.RedirectStandardOutput = true;
+                    startInfo.RedirectStandardOutput = true;
                     startInfo.WorkingDirectory = Environment.CurrentDirectory;
-                    //startInfo.RedirectStandardError = true;
-                    //startInfo.RedirectStandardOutput = true;
                     RemoveAllKnownDevices();
                     IntifaceProcess = Process.Start(startInfo);
                     IntifaceProcess.EnableRaisingEvents = true;
