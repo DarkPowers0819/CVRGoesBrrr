@@ -33,9 +33,15 @@ namespace CVRGoesBrrr
         private float mIdleIntensity = 5f;
         private float MinIntensity = 0f;
         private float MaxIntensity = 100f;
-        private float IntensityCurveExponent = 1f;
+        //private float IntensityCurveExponent = 1f;
         private float UpdateFreq = 10f;
-        
+        private float IntensityCurveExponentOscillate = 1f;
+        private float IntensityCurveExponentRotate = 1f;
+        private float IntensityCurveExponentVibrate = 1f;
+        private float IntensityCurveExponentConstrict = 1f;
+        private float IntensityCurveExponentPosition = 1f;
+        private float IntensityCurveExponentInflate = 1f;
+
         private bool SetupMode = false;
         private System.Timers.Timer BackgroundProcessingTimer;
         private AssetBundle Bundle;
@@ -58,6 +64,8 @@ namespace CVRGoesBrrr
 
         private HashSet<Sensor> PreviousActiveSensors;
         private Dictionary<string, float> AvatarParameterValues = new Dictionary<string, float>();
+
+
         public override void OnUpdate()
         {
             base.OnUpdate();
@@ -105,7 +113,12 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "DebugPerformance", false, "Debug Performance");
             MelonPreferences.SetEntryValue(BuildInfo.Name, "SetupMode", false);
             MelonPreferences.CreateEntry(BuildInfo.Name, "UpdateFreq", UpdateFreq, "Update Frequency");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponent2", IntensityCurveExponent, "Intensity Curve Exponent");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentOscillate", IntensityCurveExponentOscillate, "Intensity Curve Exponent for Oscillate Motor");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentRotate", IntensityCurveExponentRotate, "Intensity Curve Exponent for Rotation Motor");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentVibrate", IntensityCurveExponentVibrate, "Intensity Curve Exponent for Vibration Motor");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentConstrict", IntensityCurveExponentOscillate, "Intensity Curve Exponent for Constriction Motor");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentPosition", IntensityCurveExponentPosition, "Intensity Curve Exponent for Position Motor");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentInflate", IntensityCurveExponentInflate, "Intensity Curve Exponent for Inflation Motor");
             OnPreferencesSaved();
 
             // this.HarmonyInstance.PatchAll();
@@ -494,7 +507,8 @@ namespace CVRGoesBrrr
                         if (featureIndex != null)
                         {
                             int motorIndex = (int)featureIndex;
-                            intensityValue = intensity(motorIndex, sensor, motorIntensities);
+                            MotorType motorType = device.GetMotorTypes()[motorIndex];
+                            intensityValue = intensity(motorIndex, sensor, motorIntensities, motorType);
                             motorIntensities[motorIndex] = (float)Math.Max(motorIntensities[motorIndex] ?? 0, intensityValue);
                         }
                         else
@@ -502,7 +516,8 @@ namespace CVRGoesBrrr
                             // Vibrate all motors for unindexed sensors
                             for (int motorIndex = 0; motorIndex < motorIntensities.Length; motorIndex++)
                             {
-                                intensityValue = intensity(motorIndex, sensor, motorIntensities);
+                                MotorType motorType = device.GetMotorTypes()[motorIndex];
+                                intensityValue = intensity(motorIndex, sensor, motorIntensities, motorType);
                                 motorIntensities[motorIndex] = (float)Math.Max(motorIntensities[motorIndex] ?? 0, intensityValue);
                             }
                         }
@@ -531,7 +546,7 @@ namespace CVRGoesBrrr
                     {
 
                         ToyAPI.SetMotorSpeed(device, motorTypes[motorIndex], motorIntensityValues[motorIndex]);
-                        Util.DebugLog($"{device.GetName()}-{motorTypes[motorIndex].ToString()}: {motorIntensityValues[0]}");
+                        // Util.DebugLog($"{device.GetName()}-{motorTypes[motorIndex].ToString()}: {motorIntensityValues[motorIndex]}");
                     }
                     DeviceIntensities[device.GetIndex()] = motorIntensityValues;
 
@@ -657,12 +672,44 @@ namespace CVRGoesBrrr
                 }
             }
         }
-        private float intensity(int motorIndex, Sensor sensor, float?[] motorIntensities)
+        private float intensity(int motorIndex, Sensor sensor, float?[] motorIntensities, MotorType motorType)
         {
+            
             float clampedValue = Mathf.Clamp(sensor.Value, 0f, 1f);
-            float intensityCurve = 1f - (float)Math.Pow(1f - clampedValue, IntensityCurveExponent);
+            float exponent = GetExponent(motorType);
+            float intensityCurve = 1f - (float)Math.Pow(1f - clampedValue, exponent);
             // Subtract potential idle intensity so the sensor alpha acts fully in the remaining range
-            return (motorIntensities[motorIndex] ?? 0f) + intensityCurve * Math.Max(0f, Math.Min(MaxIntensity / 100f - (motorIntensities[motorIndex] ?? 0f), 1f));
+            float result = (motorIntensities[motorIndex] ?? 0f) + intensityCurve * Math.Max(0f, Math.Min(MaxIntensity / 100f - (motorIntensities[motorIndex] ?? 0f), 1f));
+            // Util.DebugLog($"Calculating intensity for {sensor.Name} {motorType} = {result}");
+            return result;
+        }
+
+        private float GetExponent(MotorType motorType)
+        {
+            float exponent = 0;
+            switch (motorType)
+            {
+                case MotorType.Oscillate:
+                    exponent = IntensityCurveExponentOscillate;
+                    break;
+                case MotorType.Rotate:
+                    exponent = IntensityCurveExponentRotate;
+                    break;
+                case MotorType.Vibrate:
+                    exponent = IntensityCurveExponentVibrate;
+                    break;
+                case MotorType.Constrict:
+                    exponent = IntensityCurveExponentConstrict;
+                    break;
+                case MotorType.Position:
+                    exponent = IntensityCurveExponentPosition;
+                    break;
+                case MotorType.Inflate:
+                    exponent = IntensityCurveExponentInflate;
+                    break;
+            }
+            // Util.DebugLog($"Exponent for {motorType} = {exponent}");
+            return exponent;
         }
 
         private OrthographicFrustum AddFrustumIfMissing(Sensor sensor)
@@ -693,7 +740,12 @@ namespace CVRGoesBrrr
             MaxIntensity = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "MaxIntensity");
             UpdateFreq = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "UpdateFreq");
             DeviceSensorBinder.JustUseMyDevice = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "JustUseMyToys");
-            IntensityCurveExponent = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponent2");
+            IntensityCurveExponentOscillate = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponentOscillate");
+            IntensityCurveExponentRotate = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponentRotate");
+            IntensityCurveExponentVibrate = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponentVibrate");
+            IntensityCurveExponentConstrict = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponentConstrict");
+            IntensityCurveExponentPosition = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponentPosition");
+            IntensityCurveExponentInflate = MelonPreferences.GetEntryValue<float>(BuildInfo.Name, "IntensityCurveExponentInflate");
             Active = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Active");
             bool setupMode = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "SetupMode");
             Util.Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
