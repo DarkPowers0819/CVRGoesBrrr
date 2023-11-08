@@ -13,6 +13,7 @@ using CVRGoesBrrr.Unity.Assets.VibeGoesBrrr_Internal;
 using System.Linq;
 using ABI_RC.Systems.InputManagement;
 using ABI_RC.Core.Networking.API.Responses;
+using ABI_RC.Core.Util.Encryption;
 
 namespace CVRGoesBrrr.CVRIntegration
 {
@@ -71,7 +72,8 @@ namespace CVRGoesBrrr.CVRIntegration
         /// <param name="objectId"></param>
         /// <param name="instTarget"></param>
         /// <param name="b"></param>
-        private static void InstantiateProp(string objectId, string fileHash, string instantiationTarget, byte[] bundleData, AssetManagement.PropTags propTags, CompatibilityVersions compatibilityVersion, string blockReason = "")
+        ///                                 string objectId, string fileHash, string instantiationTarget, CVREncryptionRouter router, AssetManagement.PropTags propTags, CompatibilityVersions compatibilityVersion, string blockReason = ""
+        private static void InstantiateProp(string objectId, string fileHash, string instantiationTarget, CVREncryptionRouter router, AssetManagement.PropTags propTags, CompatibilityVersions compatibilityVersion, string blockReason = "")
         {
             PendingProps.Add(instantiationTarget);
         }
