@@ -181,6 +181,8 @@ namespace CVRGoesBrrr
                         ToyAPI.DeviceRemoved += ToyAPI_DeviceRemoved;
                         ToyAPI.ErrorReceived += ToyAPI_ErrorReceived;
                         ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
+                        ToyAPI.ServerConnected += ToyAPI_ServerConnected;
+
                         Binder.SetButtplugClient(ToyAPI);
                     }
                 }
@@ -200,7 +202,22 @@ namespace CVRGoesBrrr
             Util.StopTimer("Computation Time",25);
             
         }
-
+        private void ToyAPI_ServerConnected(object sender, ServerConnectedEventArgs e)
+        {
+            try
+            {
+                var deviceList = ToyAPI.GetConnectedDevices();
+                foreach (var device in deviceList)
+                {
+                    var eventObj = new AdultToyAPI.DeviceAddedEventArgs(device);
+                    this.ToyAPI_DeviceAdded(null, eventObj);
+                }
+            }
+            catch (Exception ex)
+            { 
+                Error("Error Initializing devices that were already connected",ex); 
+            }
+        }
         private void ToyAPI_ServerDisconnect(object sender, ServerDisconnectEventArgs e)
         {
             throw new NotImplementedException();

@@ -13,6 +13,7 @@ namespace AdultToyAPI
         event EventHandler<DeviceRemovedEventArgs> DeviceRemoved;
         event EventHandler<DeviceAddedEventArgs> DeviceAdded;
         event EventHandler<ServerDisconnectEventArgs> ServerDisconnect;
+        event EventHandler<ServerConnectedEventArgs> ServerConnected;
         List<IAdultToy> GetConnectedDevices();
         void SetMotorSpeed(IAdultToy device, MotorType motor, float speed);
     }

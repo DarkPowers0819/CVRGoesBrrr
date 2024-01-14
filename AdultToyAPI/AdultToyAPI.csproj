@@ -95,6 +95,7 @@
     <Compile Include="IAdultToy.cs" />
     <Compile Include="IAdultToyAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerConnectedEventArgs.cs" />
     <Compile Include="ServerDisconnectEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>

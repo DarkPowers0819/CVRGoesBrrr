@@ -65,6 +65,7 @@ namespace AdultToyAPI
         public event EventHandler<DeviceRemovedEventArgs> DeviceRemoved;
         public event EventHandler<DeviceAddedEventArgs> DeviceAdded;
         public event EventHandler<ServerDisconnectEventArgs> ServerDisconnect;
+        public event EventHandler<ServerConnectedEventArgs> ServerConnected;
 
         public override void OnLateInitializeMelon()
         {
@@ -215,7 +216,10 @@ namespace AdultToyAPI
             lock (RunIntifaceCLILock)
             {
                 RemoveAllKnownDevices();
-                IntifaceProcess.Kill();
+                if (IntifaceProcess != null)
+                {
+                    IntifaceProcess.Kill();
+                }
             }
         }
 
@@ -296,11 +300,11 @@ namespace AdultToyAPI
                 DebugLog("Connecting to "+ ServerURI);
                 ConnectionTask.Wait();
                 DebugLog("finished connecting");
-
                 Buttplug.ServerDisconnect += OnButtplugServerDisconnect;
                 Buttplug.DeviceAdded += OnButtplugDeviceAdded;
                 Buttplug.DeviceRemoved += OnButtplugDeviceRemoved;
                 Buttplug.ErrorReceived += OnButtplugErrorReceived;
+                ServerConnected.Invoke(null, new ServerConnectedEventArgs());
             }
             catch (Exception e)
             {
@@ -569,6 +573,15 @@ namespace AdultToyAPI
             List<IAdultToy> devicesToReturn = new List<IAdultToy>();
             if (IsConnected())
             {
+                foreach(var unknownDevice in Buttplug.Devices)
+                {
+                    
+                    if(!KnownDevices.ContainsKey(unknownDevice.Index))
+                    {
+                        KnownDevices[unknownDevice.Index] = new AdultToy(unknownDevice);
+                    }
+                }
+
                 foreach (var device in KnownDevices)
                 {
                     devicesToReturn.Add(device.Value);
