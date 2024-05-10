@@ -19,6 +19,7 @@ using AdultToyAPI;
 using ABI_RC.Core.Player;
 using CVRGoesBrrr.CVRIntegration;
 using ABI_RC.Core.UI;
+using ABI_RC.Core;
 
 namespace CVRGoesBrrr
 {
@@ -64,7 +65,7 @@ namespace CVRGoesBrrr
 
         private HashSet<Sensor> PreviousActiveSensors;
         private Dictionary<string, float> AvatarParameterValues = new Dictionary<string, float>();
-
+        private DateTime NextRun = new DateTime(2000, 1, 1);
 
         public override void OnUpdate()
         {
@@ -91,6 +92,15 @@ namespace CVRGoesBrrr
                         }
                     }
                 }
+            }
+            double interval = FrequencyToMiliseconds(UpdateFreq);
+            if (NextRun == null || DateTime.Now > NextRun)
+            {
+                if (!Util.BackgroundThreadsAllowed)
+                {
+                    InternalLoop();
+                }
+                NextRun = DateTime.Now.AddMilliseconds(interval);
             }
         }
         public override void OnApplicationStart()
@@ -119,6 +129,7 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentConstrict", IntensityCurveExponentOscillate, "Intensity Curve Exponent for Constriction Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentPosition", IntensityCurveExponentPosition, "Intensity Curve Exponent for Position Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentInflate", IntensityCurveExponentInflate, "Intensity Curve Exponent for Inflation Motor");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseBackgroundThreads", true, "Use Background Threads");
             OnPreferencesSaved();
 
             // this.HarmonyInstance.PatchAll();
@@ -170,6 +181,13 @@ namespace CVRGoesBrrr
 
         private void BackgroundProcessingTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            if (Util.BackgroundThreadsAllowed)
+            {
+                InternalLoop();
+            }
+        }
+        private void InternalLoop()
+        {
             if (ToyAPI == null)
             {
                 foreach (var melon in MelonMod.RegisteredMelons)
@@ -199,8 +217,7 @@ namespace CVRGoesBrrr
                     ProcessSensorsAndVibrateDevices();
                 }
             }
-            Util.StopTimer("Computation Time",25);
-            
+            Util.StopTimer("Computation Time", 25);
         }
         private void ToyAPI_ServerConnected(object sender, ServerConnectedEventArgs e)
         {
@@ -675,12 +692,12 @@ namespace CVRGoesBrrr
                         {
                             if (leftDistance <= minDistance)
                             {
-                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, true);
+                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Left);
                             }
 
                             if (rightDistance <= minDistance)
                             {
-                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, false);
+                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Right);
                             }
                         }
 
@@ -767,6 +784,7 @@ namespace CVRGoesBrrr
             bool setupMode = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "SetupMode");
             Util.Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
             Util.DebugPerformance = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "DebugPerformance");
+            Util.BackgroundThreadsAllowed = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseBackgroundThreads");
             CreateBackgroundProcessingTimer();
             if (!SetupMode && setupMode)
             {

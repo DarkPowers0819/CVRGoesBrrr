@@ -39,37 +39,55 @@ namespace CVRGoesBrrr.CVRIntegration
 
         private void SystemTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (ItemsToProcess.Count > 0)
+            try
             {
-                CVREvent cvrEvent = null;
-                if (ItemsToProcess.TryDequeue(out cvrEvent))
+                if (ItemsToProcess.Count > 0)
                 {
-                    if (cvrEvent.EventType == CVREventType.LocalAvatarChange)
+                    CVREvent cvrEvent = null;
+                    if (ItemsToProcess.TryDequeue(out cvrEvent))
                     {
-                        OnLocalAvatarLoad(cvrEvent.EventData as GameObject);
-                    }
-                    if (cvrEvent.EventType == CVREventType.RemoteAvatarChange)
-                    {
-                        OnRemoteAvatarLoad(cvrEvent.EventData as PuppetMaster);
-                    }
-                    if (cvrEvent.EventType == CVREventType.PropLoaded)
-                    {
-                        PropLoaded(cvrEvent.EventData as GameObject);
-                    }
-                    if (cvrEvent.EventType == CVREventType.PropAttached)
-                    {
-                        OnPropAttached(cvrEvent.EventData as GameObject);
-                    }
-                    if (cvrEvent.EventType == CVREventType.PropDettached)
-                    {
-                        OnPropDettached(cvrEvent.EventData as GameObject);
+                        ProcessEvent(cvrEvent);
                     }
                 }
+            }
+            catch (Exception error)
+            {
+                Util.Error(error.ToString());
             }
         }
         public void QueueCVREvent(CVREvent eventToQueue)
         {
-            ItemsToProcess.Enqueue(eventToQueue);
+            if (Util.BackgroundThreadsAllowed)
+            {
+                ItemsToProcess.Enqueue(eventToQueue);
+            }
+            else
+            {
+                ProcessEvent(eventToQueue);
+            }
+        }
+        private void ProcessEvent(CVREvent cvrEvent)
+        {
+            if (cvrEvent.EventType == CVREventType.LocalAvatarChange)
+            {
+                OnLocalAvatarLoad(cvrEvent.EventData as GameObject);
+            }
+            if (cvrEvent.EventType == CVREventType.RemoteAvatarChange)
+            {
+                OnRemoteAvatarLoad(cvrEvent.EventData as PuppetMaster);
+            }
+            if (cvrEvent.EventType == CVREventType.PropLoaded)
+            {
+                PropLoaded(cvrEvent.EventData as GameObject);
+            }
+            if (cvrEvent.EventType == CVREventType.PropAttached)
+            {
+                OnPropAttached(cvrEvent.EventData as GameObject);
+            }
+            if (cvrEvent.EventType == CVREventType.PropDettached)
+            {
+                OnPropDettached(cvrEvent.EventData as GameObject);
+            }
         }
 
 
@@ -123,7 +141,6 @@ namespace CVRGoesBrrr.CVRIntegration
             {
                 PropIsReady?.Invoke(null, __instance);
             }
-
         }
     }
 }

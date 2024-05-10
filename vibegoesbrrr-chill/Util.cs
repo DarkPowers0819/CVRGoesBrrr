@@ -9,6 +9,7 @@ namespace CVRGoesBrrr
     {
         public static bool Debug;
         public static bool DebugPerformance;
+        public static bool BackgroundThreadsAllowed;
         private static ConcurrentDictionary<string, DateTime> Timers = new ConcurrentDictionary<string, DateTime>();
         public static void DebugLog(string message)
         {
@@ -29,7 +30,6 @@ namespace CVRGoesBrrr
         {
             MelonLoader.MelonLogger.Error(message);
         }
-
         public static bool AlmostEqual(double a, double b)
         {
             const double delta = 0.0001;

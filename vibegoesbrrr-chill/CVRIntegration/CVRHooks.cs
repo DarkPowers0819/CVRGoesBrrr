@@ -14,6 +14,8 @@ using System.Linq;
 using ABI_RC.Systems.InputManagement;
 using ABI_RC.Core.Networking.API.Responses;
 using ABI_RC.Core.Util.Encryption;
+using Newtonsoft.Json.Linq;
+using ABI_RC.Core;
 
 namespace CVRGoesBrrr.CVRIntegration
 {
@@ -97,14 +99,14 @@ namespace CVRGoesBrrr.CVRIntegration
         /// <param name="frequency"></param>
         /// <param name="amplitude"></param>
         /// <param name="hand">true=left hand, false=right hand</param>
-        public static void VibratePlayerHands(float delay = 0.0f, float duration = 0.0f, float frequency = 440f, float amplitude = 1f, bool hand = false)
+        public static void VibratePlayerHands(float delay = 0.0f, float duration = 0.0f, float frequency = 440f, float amplitude = 1f, CVRHand hand=CVRHand.Left)
         {
             CVRInputManager.Instance.Vibrate(delay, duration, frequency, amplitude, hand);
         }
         public static void SetAdvancedAvatarParameter(string parameterName, float intensityValue)
         {
             Util.DebugLog($"checking if Avatar parameter {parameterName} exists");
-            bool parameterExists = PlayerSetup.Instance.animatorManager.animator.parameters.Select((c) => c.name).Contains(parameterName);
+            bool parameterExists = PlayerSetup.Instance.animatorManager.Parameters.Select((c)=>c.Value.name).Contains(parameterName);
             if (parameterExists)
             {
                 Util.DebugLog($"setting Avatar parameter {parameterName} to {intensityValue}");

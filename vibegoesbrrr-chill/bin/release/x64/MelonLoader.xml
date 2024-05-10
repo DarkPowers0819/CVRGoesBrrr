@@ -11776,6 +11776,11 @@
             If a field or property is not found while decoding, this list will be searched for a matching alias.
             </summary>
         </member>
+        <member name="F:MelonLoader.Utils.ManagedAnalyticsBlocker._explicitAllowList">
+            <summary>
+            Explicitly allow domains that may be a subdomain of a blocked domain.
+            </summary>
+        </member>
         <member name="T:MelonLoader.EnumExtensions">
             <summary>
             Extentions for enums.
