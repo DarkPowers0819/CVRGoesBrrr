@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Reflection;
 using ABI_RC.Core.Player;
 using UnityEngine;
 
@@ -10,7 +11,9 @@ namespace CVRGoesBrrr
         public static bool Debug;
         public static bool DebugPerformance;
         public static bool BackgroundThreadsAllowed;
+        public static bool IgnoreWorldObjects;
         private static ConcurrentDictionary<string, DateTime> Timers = new ConcurrentDictionary<string, DateTime>();
+        private static FieldInfo _getPlayerDescriptor = typeof(PuppetMaster).GetField("_playerDescriptor", BindingFlags.Instance | BindingFlags.NonPublic);
         public static void DebugLog(string message)
         {
             if (Debug)
@@ -52,6 +55,11 @@ namespace CVRGoesBrrr
             }
 
             return false;
+        }
+
+        public static PlayerDescriptor GetPlayerDescriptor(this PuppetMaster pm)
+        {
+            return (PlayerDescriptor)_getPlayerDescriptor.GetValue(pm);
         }
 
         // Since there is no GetComponentInParent that gets inactive components...

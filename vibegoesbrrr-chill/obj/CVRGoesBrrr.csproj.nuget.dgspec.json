@@ -1,14 +1,14 @@
 {
   "format": 1,
   "restore": {
-    "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj": {}
+    "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj": {}
   },
   "projects": {
-    "D:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
+    "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
       "restore": {
-        "projectUniqueName": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj",
+        "projectUniqueName": "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj",
         "projectName": "AdultToyAPI",
-        "projectPath": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj",
+        "projectPath": "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj",
         "frameworks": {
           "net48": {
             "projectReferences": {}
@@ -19,25 +19,19 @@
         "net48": {}
       }
     },
-    "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj": {
+    "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
+        "projectUniqueName": "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
         "projectName": "CVRGoesBrrr",
-        "projectPath": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
-        "packagesPath": "C:\\Users\\ryanb\\.nuget\\packages\\",
-        "outputPath": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\vibegoesbrrr-chill\\obj\\",
+        "projectPath": "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\vibegoesbrrr-chill\\CVRGoesBrrr.csproj",
+        "packagesPath": "C:\\Users\\DDAkebono\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\vibegoesbrrr-chill\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
-        ],
         "configFilePaths": [
-          "C:\\Users\\ryanb\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\DDAkebono\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net48"
@@ -49,8 +43,8 @@
         "frameworks": {
           "net48": {
             "projectReferences": {
-              "D:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
-                "projectPath": "D:\\CVRGoesBrrr\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj"
+              "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj": {
+                "projectPath": "C:\\Users\\DDAkebono\\RiderProjects\\CVRGoesBrrr\\AdultToyAPI\\AdultToyAPI.csproj"
               }
             }
           }

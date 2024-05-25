@@ -129,7 +129,8 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentConstrict", IntensityCurveExponentOscillate, "Intensity Curve Exponent for Constriction Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentPosition", IntensityCurveExponentPosition, "Intensity Curve Exponent for Position Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentInflate", IntensityCurveExponentInflate, "Intensity Curve Exponent for Inflation Motor");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "UseBackgroundThreads", true, "Use Background Threads");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "UseBackgroundThreads", false, "Use Background Threads", "Allows the use of background threads to offload some functions, this can cause potential crashes");
+            MelonPreferences.CreateEntry(BuildInfo.Name, "IgnoreWorldObjects", false, "Ignore World Objects", "Disables searching for world DPS and thrust vectors, this can mitigate massive potential lag on world load");
             OnPreferencesSaved();
 
             // this.HarmonyInstance.PatchAll();
@@ -210,12 +211,9 @@ namespace CVRGoesBrrr
                 return;
             }
             Util.StartTimer("Computation Time");
-            lock (ProcessingLock)
+            if (Active)
             {
-                if (Active)
-                {
-                    ProcessSensorsAndVibrateDevices();
-                }
+                ProcessSensorsAndVibrateDevices();
             }
             Util.StopTimer("Computation Time", 25);
         }
@@ -617,92 +615,91 @@ namespace CVRGoesBrrr
         private void CalculateHandTouchFeedback(HashSet<Sensor> activeSensors)
         {
             // Calculate and send touch feedback
-            if (TouchFeedbackEnabled && CVREventProcessor.LocalAvatar != null)
+            if (!TouchFeedbackEnabled || !PlayerSetup.Instance._avatar) return;
+
+            foreach (var sensor in FeedbackSensors)
             {
-                foreach (var sensor in FeedbackSensors)
+                if (!sensor.Active) continue;
+
+                float minDistance = 0f;
+
+                if (sensor is TouchSensor)
                 {
-                    if (!sensor.Active) continue;
+                    var touchSensor = sensor as TouchSensor;
+                    minDistance = touchSensor.Camera.orthographicSize * 4;
+                }
+                else if (sensor is Giver)
+                {
+                    var giver = sensor as Giver;
+                    minDistance = giver.Length;
+                }
+                else
+                {
+                    continue;
+                }
 
-                    float minDistance = 0f;
+                float leftDistance = float.MaxValue;
+                float rightDistance = float.MaxValue;
+                Animator playerLocalAvatarAnimator = PlayerSetup.Instance._animator;
+                if (playerLocalAvatarAnimator != null)
+                {
+                    var leftHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.LeftHand);
+                    if (leftHand != null)
+                    {
+                        leftDistance = Vector3.Distance(sensor.GameObject.transform.position, leftHand.position);
+                    }
+                    else
+                    {
+                        Util.Error("Unable to find player left hand to calculate touch feedback");
+                    }
+                    var rightHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.RightHand);
+                    if (rightHand != null)
+                    {
+                        rightDistance = Vector3.Distance(sensor.GameObject.transform.position, rightHand.position);
+                    }
+                    else
+                    {
+                        Util.Error("Unable to find player right hand to calculate touch feedback");
+                    }
+                }
+                else
+                {
+                    Util.Error("Unable to find player Avatar to calculate touch feedback");
+                }
 
+                if (leftDistance <= minDistance || rightDistance <= minDistance)
+                {
                     if (sensor is TouchSensor)
                     {
                         var touchSensor = sensor as TouchSensor;
-                        minDistance = touchSensor.Camera.orthographicSize * 4;
-                    }
-                    else if (sensor is Giver)
-                    {
-                        var giver = sensor as Giver;
-                        minDistance = giver.Length;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-
-                    float leftDistance = float.MaxValue;
-                    float rightDistance = float.MaxValue;
-                    Animator playerLocalAvatarAnimator = CVREventProcessor.LocalAvatar.GetComponentInChildren<Animator>();
-                    if (playerLocalAvatarAnimator != null)
-                    {
-                        var leftHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.LeftHand);
-                        if (leftHand != null)
+                        int playerNetworkMask = CVRLayersUtil.LayerToCullingMask(CVRLayers.PlayerNetwork);
+                        if (SetupMode)
                         {
-                            leftDistance = Vector3.Distance(sensor.GameObject.transform.position, leftHand.position);
+                            touchSensor.Camera.cullingMask |= playerNetworkMask;
                         }
                         else
                         {
-                            Util.Error("Unable to find player left hand to calculate touch feedback");
-                        }
-                        var rightHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.RightHand);
-                        if (rightHand != null)
-                        {
-                            rightDistance = Vector3.Distance(sensor.GameObject.transform.position, rightHand.position);
-                        }
-                        else
-                        {
-                            Util.Error("Unable to find player right hand to calculate touch feedback");
+                            touchSensor.Camera.cullingMask = playerNetworkMask;
                         }
                     }
-                    else
+
+                    sensor.Enabled = true;
+
+                    float intensity = sensor.Value;
+                    if (intensity > 0f)
                     {
-                        Util.Error("Unable to find player Avatar to calculate touch feedback");
-                    }
-
-                    if (leftDistance <= minDistance || rightDistance <= minDistance)
-                    {
-                        if (sensor is TouchSensor)
+                        if (leftDistance <= minDistance)
                         {
-                            var touchSensor = sensor as TouchSensor;
-                            int playerNetworkMask = CVRLayersUtil.LayerToCullingMask(CVRLayers.PlayerNetwork);
-                            if (SetupMode)
-                            {
-                                touchSensor.Camera.cullingMask |= playerNetworkMask;
-                            }
-                            else
-                            {
-                                touchSensor.Camera.cullingMask = playerNetworkMask;
-                            }
+                            CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Left);
                         }
 
-                        sensor.Enabled = true;
-
-                        float intensity = sensor.Value;
-                        if (intensity > 0f)
+                        if (rightDistance <= minDistance)
                         {
-                            if (leftDistance <= minDistance)
-                            {
-                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Left);
-                            }
-
-                            if (rightDistance <= minDistance)
-                            {
-                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Right);
-                            }
+                            CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Right);
                         }
-
-                        activeSensors.Add(sensor);
                     }
+
+                    activeSensors.Add(sensor);
                 }
             }
         }
@@ -785,6 +782,7 @@ namespace CVRGoesBrrr
             Util.Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
             Util.DebugPerformance = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "DebugPerformance");
             Util.BackgroundThreadsAllowed = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseBackgroundThreads");
+            Util.IgnoreWorldObjects = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "IgnoreWorldObjects");
             CreateBackgroundProcessingTimer();
             if (!SetupMode && setupMode)
             {
