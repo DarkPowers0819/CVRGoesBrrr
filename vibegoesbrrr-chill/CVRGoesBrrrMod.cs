@@ -61,15 +61,12 @@ namespace CVRGoesBrrr
         private DeviceSensorBinder Binder;
         // private ExpressionParam<float> mGlobalParam;
         private IAdultToyAPI ToyAPI;
-        private object ProcessingLock = new object();
 
         private HashSet<Sensor> PreviousActiveSensors;
         private Dictionary<string, float> AvatarParameterValues = new Dictionary<string, float>();
-        private DateTime NextRun = new DateTime(2000, 1, 1);
 
         public override void OnUpdate()
         {
-            base.OnUpdate();
             if (PlayerSetup.Instance?.animatorManager != null)
             {
                 while (AdvancedAvatarParameters.Count > 0)
@@ -93,18 +90,29 @@ namespace CVRGoesBrrr
                     }
                 }
             }
-            double interval = FrequencyToMiliseconds(UpdateFreq);
-            if (NextRun == null || DateTime.Now > NextRun)
-            {
-                if (!Util.BackgroundThreadsAllowed)
-                {
-                    InternalLoop();
-                }
-                NextRun = DateTime.Now.AddMilliseconds(interval);
-            }
         }
-        public override void OnApplicationStart()
+        public override void OnLateInitializeMelon()
         {
+            Util.Logger = LoggerInstance;
+
+            var adultToyAPI = RegisteredMelons.FirstOrDefault(x => x.Info.Name.Equals("AdultToyAPI"));
+
+            if (adultToyAPI == null)
+            {
+                Util.Error("AdultToyAPI was not detected! CVRGoesBrrr will not start up!");
+                return;
+            }
+
+            ToyAPI = (IAdultToyAPI)adultToyAPI;
+            ToyAPI.DeviceAdded += ToyAPI_DeviceAdded;
+            ToyAPI.DeviceRemoved += ToyAPI_DeviceRemoved;
+            ToyAPI.ErrorReceived += ToyAPI_ErrorReceived;
+            ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
+            ToyAPI.ServerConnected += ToyAPI_ServerConnected;
+
+            Binder.SetButtplugClient(ToyAPI);
+
+            Util.Info($"CVRGoesBrrr is starting up! AdultToyAPI {adultToyAPI.Info.Version} is detected!");
 
             MelonPreferences.CreateCategory(BuildInfo.Name, "CVR Goes Brrr~");
             MelonPreferences.CreateEntry(BuildInfo.Name, "Active", Active, "Active");
@@ -130,7 +138,6 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentPosition", IntensityCurveExponentPosition, "Intensity Curve Exponent for Position Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentInflate", IntensityCurveExponentInflate, "Intensity Curve Exponent for Inflation Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "UseBackgroundThreads", false, "Use Background Threads", "Allows the use of background threads to offload some functions, this can cause potential crashes");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "IgnoreWorldObjects", false, "Ignore World Objects", "Disables searching for world DPS and thrust vectors, this can mitigate massive potential lag on world load");
             OnPreferencesSaved();
 
             // this.HarmonyInstance.PatchAll();
@@ -182,41 +189,15 @@ namespace CVRGoesBrrr
 
         private void BackgroundProcessingTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (Util.BackgroundThreadsAllowed)
-            {
-                InternalLoop();
-            }
-        }
-        private void InternalLoop()
-        {
-            if (ToyAPI == null)
-            {
-                foreach (var melon in MelonMod.RegisteredMelons)
-                {
-                    if (melon is IAdultToyAPI)
-                    {
-                        ToyAPI = (IAdultToyAPI)melon;
-                        ToyAPI.DeviceAdded += ToyAPI_DeviceAdded;
-                        ToyAPI.DeviceRemoved += ToyAPI_DeviceRemoved;
-                        ToyAPI.ErrorReceived += ToyAPI_ErrorReceived;
-                        ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
-                        ToyAPI.ServerConnected += ToyAPI_ServerConnected;
-
-                        Binder.SetButtplugClient(ToyAPI);
-                    }
-                }
-            }
-            if (ToyAPI == null)
-            {
-                return;
-            }
             Util.StartTimer("Computation Time");
             if (Active)
             {
+                //This is background thread safe, no functions touch Unity objects
                 ProcessSensorsAndVibrateDevices();
             }
             Util.StopTimer("Computation Time", 25);
         }
+
         private void ToyAPI_ServerConnected(object sender, ServerConnectedEventArgs e)
         {
             try
@@ -615,7 +596,7 @@ namespace CVRGoesBrrr
         private void CalculateHandTouchFeedback(HashSet<Sensor> activeSensors)
         {
             // Calculate and send touch feedback
-            if (!TouchFeedbackEnabled || !PlayerSetup.Instance._avatar) return;
+            if (!TouchFeedbackEnabled || PlayerSetup.Instance?._avatar == null) return;
 
             foreach (var sensor in FeedbackSensors)
             {
@@ -781,8 +762,6 @@ namespace CVRGoesBrrr
             bool setupMode = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "SetupMode");
             Util.Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
             Util.DebugPerformance = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "DebugPerformance");
-            Util.BackgroundThreadsAllowed = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseBackgroundThreads");
-            Util.IgnoreWorldObjects = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "IgnoreWorldObjects");
             CreateBackgroundProcessingTimer();
             if (!SetupMode && setupMode)
             {

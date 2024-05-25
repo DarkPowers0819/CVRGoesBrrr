@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using ABI_RC.Core.Player;
 using ABI.CCK.Components;
 using UnityEngine;
 using static MelonLoader.MelonLogger;
-using UnityEngine.Events;
 using CVRGoesBrrr.CVRIntegration;
 
 namespace CVRGoesBrrr
@@ -92,7 +90,6 @@ namespace CVRGoesBrrr
             // mSensorInstances.Clear();
             // mGivers.Clear();
             // mTakers.Clear();
-
             foreach (var light in Resources.FindObjectsOfTypeAll(typeof(Light)) as Light[])
             {
                 var sceneName = light.gameObject.scene.name;
