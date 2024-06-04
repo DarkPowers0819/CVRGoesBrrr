@@ -137,7 +137,6 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentConstrict", IntensityCurveExponentOscillate, "Intensity Curve Exponent for Constriction Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentPosition", IntensityCurveExponentPosition, "Intensity Curve Exponent for Position Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentInflate", IntensityCurveExponentInflate, "Intensity Curve Exponent for Inflation Motor");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "UseBackgroundThreads", false, "Use Background Threads", "Allows the use of background threads to offload some functions, this can cause potential crashes");
             OnPreferencesSaved();
 
             // this.HarmonyInstance.PatchAll();
