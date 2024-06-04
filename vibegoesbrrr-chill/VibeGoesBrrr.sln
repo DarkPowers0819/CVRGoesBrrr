@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7083AB75-375F-4A0E-9A12-059C6D68FEB1}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		..\.gitignore = ..\.gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdultToyAPI", "..\AdultToyAPI\AdultToyAPI.csproj", "{9CC08F07-3C12-497B-87A0-789597F8C5DD}"

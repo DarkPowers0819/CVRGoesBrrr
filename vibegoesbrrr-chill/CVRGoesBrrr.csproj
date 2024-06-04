@@ -7,7 +7,7 @@
     <ProjectGuid>{28893DEB-734B-4161-926E-5CC6C28CE143}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VibeGoesBrrr</RootNamespace>
+    <RootNamespace>CVRGoesBrrr</RootNamespace>
     <AssemblyName>VibeGoesBrrr</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -60,10 +60,7 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AvatarEventArgs.cs" />
     <Compile Include="BuildInfo.cs" />
-    <Compile Include="CVRIntegration\CVREvent.cs" />
-    <Compile Include="CVRIntegration\CVREventProcessor.cs" />
     <Compile Include="CVRIntegration\CVRLayers.cs" />
     <Compile Include="Sensors\DPSOrifice.cs" />
     <Compile Include="Sensors\DPSPenetrator.cs" />
@@ -72,7 +69,6 @@
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Sensors\Taker.cs" />
     <Compile Include="Sensors\TouchSensor.cs" />
-    <Compile Include="Unity\Assets\VibeGoesBrrr Internal\AttachmentTracker.cs" />
     <Compile Include="Unity\Assets\VibeGoesBrrr Internal\OrthographicDepth.cs" />
     <Compile Include="Unity\Assets\VibeGoesBrrr Internal\OrthographicFrustum.cs" />
     <Compile Include="CVRGoesBrrrMod.cs" />

@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using ABI_RC.Core.Player;
+using ABI.CCK.Components;
 using UnityEngine;
 using static MelonLoader.MelonLogger;
-using UnityEngine.Events;
 using CVRGoesBrrr.CVRIntegration;
 
 namespace CVRGoesBrrr
@@ -26,42 +25,56 @@ namespace CVRGoesBrrr
         {
             // m_avatarSetupCompleted += OnAvatarIsReady;
             // PlayerSetup.Instance.avatarSetupCompleted.AddListener(m_avatarSetupCompleted);
-            CVREventProcessor.AvatarIsReady += OnAvatarIsReady;
-            CVREventProcessor.PropIsReady += OnPropIsReady;
-            CVREventProcessor.PropAttached += CVRHooks_PropAttached;
-            CVREventProcessor.PropDettached += CVRHooks_PropDettached;
+            CVRHooks.LocalAvatarIsReady += LocalAvatarIsReady;
+            CVRHooks.RemoteAvatarIsReady += RemoteAvatarIsReady;
+            CVRHooks.PropIsReady += OnPropIsReady;
+            CVRHooks.PropAttached += CVRHooks_PropAttached;
+            CVRHooks.PropDettached += CVRHooks_PropDettached;
         }
 
-        private void CVRHooks_PropDettached(object sender, GameObject e)
+        private void RemoteAvatarIsReady(PuppetMaster puppetMaster, PlayerDescriptor playerDescriptor)
         {
-            if (mSensorInstances.ContainsKey(e.GetInstanceID()))
+            ScanAvatarHierarchy(puppetMaster.avatarObject, false);
+        }
+
+        private void LocalAvatarIsReady()
+        {
+            ScanAvatarHierarchy(PlayerSetup.Instance._avatar, true);
+        }
+
+        private void CVRHooks_PropDettached(CVRAttachment attachment)
+        {
+            if (mSensorInstances.ContainsKey(attachment.gameObject.GetInstanceID()))
             {
                 Util.DebugLog("changing prop owner to world");
-                mSensorInstances[e.GetInstanceID()].SetOwnerType(SensorOwnerType.World);
+                mSensorInstances[attachment.gameObject.GetInstanceID()].SetOwnerType(SensorOwnerType.World);
             }
         }
 
-        private void CVRHooks_PropAttached(object sender, GameObject e)
+        private void CVRHooks_PropAttached(CVRAttachment attachment)
         {
-            if (mSensorInstances.ContainsKey(e.GetInstanceID()))
+            if (mSensorInstances.ContainsKey(attachment.gameObject.GetInstanceID()))
             {
                 Util.DebugLog("changing prop owner to Local Player");
-                mSensorInstances[e.GetInstanceID()].SetOwnerType(SensorOwnerType.LocalPlayer);
+                mSensorInstances[attachment.gameObject.GetInstanceID()].SetOwnerType(SensorOwnerType.LocalPlayer);
             }
         }
 
         public void Dispose()
         {
-            CVREventProcessor.AvatarIsReady -= OnAvatarIsReady;
-            CVREventProcessor.PropIsReady -= OnPropIsReady;
+            CVRHooks.LocalAvatarIsReady -= LocalAvatarIsReady;
+            CVRHooks.RemoteAvatarIsReady -= RemoteAvatarIsReady;
+            CVRHooks.PropIsReady -= OnPropIsReady;
+            CVRHooks.PropAttached -= CVRHooks_PropAttached;
+            CVRHooks.PropDettached -= CVRHooks_PropDettached;
         }
-        private void OnPropIsReady(object sender, GameObject obj)
+        private void OnPropIsReady(CVRSpawnable prop)
         {
-            foreach (var light in obj.GetComponentsInChildren<Light>(true))
+            foreach (var light in prop.GetComponentsInChildren<Light>(true))
             {
                 MatchDPSLight(light, SensorOwnerType.World);
             }
-            foreach (var gameObject in obj.GetComponentsInChildren<GameObject>(true))
+            foreach (var gameObject in prop.GetComponentsInChildren<GameObject>(true))
             {
                 MatchThrustVector(gameObject, SensorOwnerType.World);
             }
@@ -77,32 +90,35 @@ namespace CVRGoesBrrr
             // mSensorInstances.Clear();
             // mGivers.Clear();
             // mTakers.Clear();
-
             foreach (var light in Resources.FindObjectsOfTypeAll(typeof(Light)) as Light[])
             {
-                if (CVREventProcessor.LocalAvatar == null || !light.transform.IsChildOf(CVREventProcessor.LocalAvatar.transform))
+                var sceneName = light.gameObject.scene.name;
+
+                if (sceneName != "AdditiveContentScene" && sceneName != "DontDestroyOnLoad" && sceneName != "HideAndDontSave")
                 {
                     MatchDPSLight(light, SensorOwnerType.World);
                 }
             }
             foreach (var gameObject in Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[])
             {
-                if (CVREventProcessor.LocalAvatar == null || !gameObject.transform.IsChildOf(CVREventProcessor.LocalAvatar.transform))
+                var sceneName = gameObject.scene.name;
+
+                if (sceneName != "AdditiveContentScene" && sceneName != "DontDestroyOnLoad" && sceneName != "HideAndDontSave")
                 {
                     MatchThrustVector(gameObject, SensorOwnerType.World);
                 }
             }
         }
 
-        private void OnAvatarIsReady(object sender, AvatarEventArgs args)
+        private void ScanAvatarHierarchy(GameObject avatarRoot, bool isLocal)
         {
-            foreach (var light in args.Avatar.GetComponentsInChildren<Light>(true))
+            foreach (var light in avatarRoot.GetComponentsInChildren<Light>(true))
             {
-                MatchDPSLight(light, args.Player ? SensorOwnerType.RemotePlayer : SensorOwnerType.LocalPlayer);
+                MatchDPSLight(light, isLocal ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer);
             }
-            foreach (var gameObject in args.Avatar.GetComponentsInChildren<GameObject>(true))
+            foreach (var gameObject in avatarRoot.GetComponentsInChildren<GameObject>(true))
             {
-                MatchThrustVector(gameObject, args.Player ? SensorOwnerType.RemotePlayer : SensorOwnerType.LocalPlayer);
+                MatchThrustVector(gameObject, isLocal ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer);
             }
         }
 
@@ -180,7 +196,7 @@ namespace CVRGoesBrrr
 
         private void MatchThrustVector(GameObject gameObject, SensorOwnerType sensorType)
         {
-            if (!Giver.Pattern.Match(gameObject.name).Success || !Taker.Pattern.Match(gameObject.name).Success) return;
+            if (!Giver.Pattern.Match(gameObject.name).Success) return;
 
             // Don't overwrite DPS sensors if user does manual configuration
             if (mSensorInstances.ContainsKey(gameObject.GetInstanceID()))
