@@ -110,7 +110,7 @@ namespace CVRGoesBrrr
             ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
             ToyAPI.ServerConnected += ToyAPI_ServerConnected;
 
-            Binder.SetButtplugClient(ToyAPI);
+            
 
             Util.Info($"CVRGoesBrrr is starting up! AdultToyAPI {adultToyAPI.Info.Version} is detected!");
 
@@ -156,6 +156,7 @@ namespace CVRGoesBrrr
             // mAudioProvider.SensorLost += OnSensorLost;
 
             Binder = new DeviceSensorBinder();
+            Binder.SetButtplugClient(ToyAPI);
             Binder.BindingAdded += OnBindingAdded;
             Binder.BindingRemoved += OnBindingRemoved;
             Binder.AddSensorProvider(SensorManager);
@@ -326,14 +327,6 @@ namespace CVRGoesBrrr
 
         void LoadAssets()
         {
-#if DEBUG
-            Util.Info("Resources:");
-            foreach (var res in Assembly.GetExecutingAssembly().GetManifestResourceNames())
-            {
-                Util.Info($"- {res}");
-            }
-#endif
-
             var assetStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("assetbundle");
             if (assetStream == null)
             {
@@ -352,12 +345,6 @@ namespace CVRGoesBrrr
             }
             Bundle.hideFlags |= HideFlags.DontUnloadUnusedAsset;
 
-#if DEBUG
-            foreach (var name in Bundle.GetAllAssetNames())
-            {
-                Util.Info($"Asset: {name}");
-            }
-#endif
             Shader = Bundle.LoadAsset<Shader>("Assets/VibeGoesBrrr Internal/OrthographicDepth.shader");
             if (!Shader)
             {
@@ -383,8 +370,14 @@ namespace CVRGoesBrrr
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
-            SensorManager.OnSceneWasInitialized();
-            ThrustVectorManager.OnSceneWasInitialized();
+            if (SensorManager != null)
+            {
+                SensorManager.OnSceneWasInitialized();
+            }
+            if (ThrustVectorManager != null)
+            {
+                ThrustVectorManager.OnSceneWasInitialized();
+            }
         }
 
         void OnSensorDiscovered(object _, Sensor sensor)
@@ -399,7 +392,6 @@ namespace CVRGoesBrrr
             if (sensor.OwnerType == SensorOwnerType.RemotePlayer)
             {
                 FeedbackSensors.Add(sensor);
-                // mExpressionSensors.Add(sensor);
             }
             if (sensor.OwnerType == SensorOwnerType.World)
             {
