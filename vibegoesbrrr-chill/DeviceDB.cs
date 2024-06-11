@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace CVRGoesBrrr
 
         private static Task FetchTask;
         private static List<IoSTDevice> Devices;
+        private static ConcurrentDictionary<string, IoSTDevice> DeviceDictionary = new ConcurrentDictionary<string, IoSTDevice>();
 
         private string CachePath => Path.Combine(NativeMethods.TempPath, "devices.json");
 
@@ -128,11 +130,21 @@ namespace CVRGoesBrrr
             {
                 var json = await new StreamReader(stream).ReadToEndAsync();
                 Devices = JsonConvert.DeserializeObject<List<IoSTDevice>>(json);
+                foreach (IoSTDevice device in Devices)
+                {
+                    var fullName = $"{device.Brand} {device.Device}";
+                    DeviceDictionary[fullName.ToLower()] = device;
+                }
             }
         }
 
         public IoSTDevice FindDevice(string name)
         {
+            string key = name.ToLower();
+            if(DeviceDictionary.ContainsKey(key))
+            {
+                return DeviceDictionary[key];
+            }
             foreach (var device in Devices)
             {
                 var fullName = $"{device.Brand} {device.Device}";

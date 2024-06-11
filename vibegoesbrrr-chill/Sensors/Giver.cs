@@ -58,15 +58,18 @@ namespace CVRGoesBrrr
         {
             float length = 0f;
             var vertices = mesh.vertices;
-            if(vertices.Length<100)
+            if (vertices.Length<100)
             {
                 Util.Warn("penetrator is extreamly low poly="+ vertices.Length);
             }
             foreach (var vertex in vertices)
             {
-                length = Math.Max(length, vertex.z);
+                if(length<vertex.z)
+                {
+                    length= vertex.z;
+                }
             }
-            if(length <0.1 || length > 2)
+            if (length <0.1 || length > 2)
             {
                 Util.Warn("penetrator has unusual length: " + length)
 ;            }

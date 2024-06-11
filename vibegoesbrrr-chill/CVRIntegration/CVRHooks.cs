@@ -39,7 +39,7 @@ namespace CVRGoesBrrr.CVRIntegration
             {
                 foreach (var item in attachments)
                 {
-                    Util.DebugLog($"Attachable prop detected, adding events to CVRAttachment component! GUID: {propSpawnable.guid} | Name: {propSpawnable.name}");
+                    Util.DebugLog($"Prop Instantiated, adding events to CVRAttachment component! GUID: {propSpawnable.guid} | Name: {propSpawnable.name}");
 
                     item.onAttach.AddListener(() =>
                     {
@@ -64,7 +64,7 @@ namespace CVRGoesBrrr.CVRIntegration
         {
             Util.StartTimer("OnLocalAvatarLoad");
             LocalAvatarIsReady?.Invoke();
-            Util.StopTimer("OnLocalAvatarLoad", 10);
+            Util.StopTimer("OnLocalAvatarLoad", 2);
         }
         /// <summary>
         /// 
@@ -76,7 +76,7 @@ namespace CVRGoesBrrr.CVRIntegration
             var descriptor = __instance.GetPlayerDescriptor();
             Util.DebugLog($"RemoteAvatarLoad fired - Username: {descriptor.userName} | Name: {__instance.avatarObject.name}");
             RemoteAvatarIsReady.Invoke(__instance, descriptor);
-            Util.StopTimer("OnRemoteAvatarLoad", 10);
+            Util.StopTimer("OnRemoteAvatarLoad", 2);
         }
 
         /// <summary>

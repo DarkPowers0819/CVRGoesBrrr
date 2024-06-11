@@ -112,11 +112,13 @@ namespace CVRGoesBrrr
 
         private void ScanAvatarHierarchy(GameObject avatarRoot, bool isLocal)
         {
-            foreach (var light in avatarRoot.GetComponentsInChildren<Light>(true))
+            Light[] lights = avatarRoot.GetComponentsInChildren<Light>(true);
+            GameObject[] gameObjects = avatarRoot.GetComponentsInChildren<GameObject>(true);
+            foreach (var light in lights)
             {
                 MatchDPSLight(light, isLocal ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer);
             }
-            foreach (var gameObject in avatarRoot.GetComponentsInChildren<GameObject>(true))
+            foreach (var gameObject in gameObjects)
             {
                 MatchThrustVector(gameObject, isLocal ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer);
             }
@@ -127,34 +129,40 @@ namespace CVRGoesBrrr
             if (DPSLightId(light, DPSPenetrator.TipID) || DPSLightId(light, DPSPenetrator.TipID_ZawooCompat))
             {
                 // Step up the hierarchy until we find an object with a mesh as child
-                GameObject root;
-                for (root = light.gameObject; root != null && root.GetComponentInChildren<MeshRenderer>(true) == null && root.GetComponentInChildren<SkinnedMeshRenderer>(true) == null; root = root.transform.parent?.gameObject) ;
+                GameObject root = light.gameObject;
+
+                SkinnedMeshRenderer skinnedMeshRenderer = root.GetComponentInChildren<SkinnedMeshRenderer>(true);
+                MeshRenderer meshRenderer = root.GetComponentInChildren<MeshRenderer>(true);
+
+                while(skinnedMeshRenderer == null && meshRenderer==null && root !=null)
+                {
+                    root = root.transform.parent?.gameObject;
+                    meshRenderer = root.GetComponentInChildren<MeshRenderer>(true);
+                    skinnedMeshRenderer = root.GetComponentInChildren<SkinnedMeshRenderer>(true);
+                }
                 if (root == null)
                 {
-                    Error("Discovered a misconfigured Dynamic Penetration System penetrator. Penetrators must have a mesh somewhere in its hierarchy!");
+                    Error("Discovered a misconfigured Dynamic Penetration System penetrator. Penetrators must have a root game object!");
                     return;
                 }
 
-                GameObject meshObject;
-                Mesh mesh;
-                var meshRenderer = root.GetComponentInChildren<MeshRenderer>(true);
-                if (meshRenderer)
+                GameObject meshObject=null;
+                Mesh mesh=null;
+                if (meshRenderer!=null)
                 {
                     meshObject = meshRenderer.gameObject;
                     mesh = meshRenderer.GetComponent<MeshFilter>()?.sharedMesh;
                 }
-                else
+                if(skinnedMeshRenderer != null)
                 {
-                    var skinnedMeshRenderer = root.GetComponentInChildren<SkinnedMeshRenderer>(true);
                     meshObject = skinnedMeshRenderer?.gameObject;
                     mesh = skinnedMeshRenderer?.sharedMesh;
                 }
-                if (mesh == null)
+                if (mesh == null || meshObject==null)
                 {
                     Error("Misconfigured Dynamic Penetration System penetrator; Couldn't find mesh");
                     return;
                 }
-
                 var penetrator = new DPSPenetrator(root.name, sensorType, root, meshObject, mesh, light);
                 mGivers[root.GetInstanceID()] = penetrator;
                 mSensorInstances[root.GetInstanceID()] = penetrator;

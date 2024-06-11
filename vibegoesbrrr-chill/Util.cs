@@ -12,7 +12,7 @@ namespace CVRGoesBrrr
         public static MelonLogger.Instance Logger;
         public static bool Debug;
         public static bool DebugPerformance;
-        private static ConcurrentDictionary<string, DateTime> Timers = new ConcurrentDictionary<string, DateTime>();
+        private static ConcurrentDictionary<string, System.Diagnostics.Stopwatch> Stopwatches = new ConcurrentDictionary<string, System.Diagnostics.Stopwatch>();
         private static FieldInfo _getPlayerDescriptor = typeof(PuppetMaster).GetField("_playerDescriptor", BindingFlags.Instance | BindingFlags.NonPublic);
         public static void DebugLog(string message)
         {
@@ -23,7 +23,7 @@ namespace CVRGoesBrrr
         }
         public static void Warn(string message)
         {
-            Logger.Warning(message);
+            Logger.Warning("[WARN] "+message);
         }
         public static void Info(string message)
         {
@@ -31,7 +31,7 @@ namespace CVRGoesBrrr
         }
         public static void Error(string message)
         {
-            Logger.Error(message);
+            Logger.Error("[ERROR] "+message);
         }
         public static bool AlmostEqual(double a, double b)
         {
@@ -73,13 +73,15 @@ namespace CVRGoesBrrr
 
         public static void StartTimer(string timerName)
         {
-            Timers[timerName + "Start"] = DateTime.Now;
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            Stopwatches[timerName] = watch;
+            watch.Reset();
+            watch.Start();
         }
         public static void StopTimer(string timerName, double warningThreshold)
         {
-            DateTime stopTime = DateTime.Now;
-            DateTime startTime = Timers[timerName + "Start"];
-            TimeSpan duration = stopTime - startTime;
+            Stopwatches[timerName].Stop();
+            TimeSpan duration = Stopwatches[timerName].Elapsed;
             string durationMessage = "Timer " + timerName + $" ran for {duration.TotalMilliseconds} milliseconds";
             if (duration.TotalMilliseconds > warningThreshold)
             {
