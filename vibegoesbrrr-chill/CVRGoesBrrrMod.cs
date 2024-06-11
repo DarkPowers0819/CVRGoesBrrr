@@ -139,9 +139,7 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentInflate", IntensityCurveExponentInflate, "Intensity Curve Exponent for Inflation Motor");
             OnPreferencesSaved();
 
-            // this.HarmonyInstance.PatchAll();
             CVRHooks.AddHooksIntoCVR(this.HarmonyInstance);
-            // VRCHooks.AvatarIsReady += OnAvatarIsReady;
 
             SensorManager = new TouchZoneProvider();
             SensorManager.SensorDiscovered += OnSensorDiscovered;
@@ -151,9 +149,6 @@ namespace CVRGoesBrrr
             ThrustVectorManager.SensorDiscovered += OnSensorDiscovered;
             ThrustVectorManager.SensorLost += OnSensorLost;
 
-            // mAudioProvider = new AudioProvider();
-            // mAudioProvider.SensorDiscovered += OnSensorDiscovered;
-            // mAudioProvider.SensorLost += OnSensorLost;
 
             Binder = new DeviceSensorBinder();
             Binder.SetButtplugClient(ToyAPI);
@@ -293,7 +288,7 @@ namespace CVRGoesBrrr
         {
             if (e.Sensor.OwnerType == SensorOwnerType.LocalPlayer)
             {
-                Util.Info($"Device \"{e.Device.GetName()}\" unbound from sensor \"{e.Sensor.Name}\"");
+                Util.DebugLog($"Device \"{e.Device.GetName()}\" unbound from sensor \"{e.Sensor.Name}\"");
             }
             else
             {
@@ -307,7 +302,7 @@ namespace CVRGoesBrrr
             {
                 // Send a lil' doot-doot 🎺 when successfully bound!
                 DootDoot(e.Device);
-                Util.Info($"Device \"{e.Device.GetName()}\" bound to sensor \"{e.Sensor.Name}\"");
+                Util.DebugLog($"Device \"{e.Device.GetName()}\" bound to sensor \"{e.Sensor.Name}\"");
             }
             else
             {
@@ -387,7 +382,7 @@ namespace CVRGoesBrrr
             {
                 TouchAndThrustSensors.Add(sensor);
                 ExpressionSensors.Add(sensor);
-                Util.Info($"Discovered sensor \"{sensor.Name}\"");
+                Util.DebugLog($"Discovered sensor \"{sensor.Name}\"");
             }
             if (sensor.OwnerType == SensorOwnerType.RemotePlayer)
             {
