@@ -61,15 +61,12 @@ namespace CVRGoesBrrr
         private DeviceSensorBinder Binder;
         // private ExpressionParam<float> mGlobalParam;
         private IAdultToyAPI ToyAPI;
-        private object ProcessingLock = new object();
 
         private HashSet<Sensor> PreviousActiveSensors;
         private Dictionary<string, float> AvatarParameterValues = new Dictionary<string, float>();
-        private DateTime NextRun = new DateTime(2000, 1, 1);
 
         public override void OnUpdate()
         {
-            base.OnUpdate();
             if (PlayerSetup.Instance?.animatorManager != null)
             {
                 while (AdvancedAvatarParameters.Count > 0)
@@ -93,18 +90,29 @@ namespace CVRGoesBrrr
                     }
                 }
             }
-            double interval = FrequencyToMiliseconds(UpdateFreq);
-            if (NextRun == null || DateTime.Now > NextRun)
-            {
-                if (!Util.BackgroundThreadsAllowed)
-                {
-                    InternalLoop();
-                }
-                NextRun = DateTime.Now.AddMilliseconds(interval);
-            }
         }
-        public override void OnApplicationStart()
+        public override void OnLateInitializeMelon()
         {
+            Util.Logger = LoggerInstance;
+
+            var adultToyAPI = RegisteredMelons.FirstOrDefault(x => x.Info.Name.Equals("AdultToyAPI"));
+
+            if (adultToyAPI == null)
+            {
+                Util.Error("AdultToyAPI was not detected! CVRGoesBrrr will not start up!");
+                return;
+            }
+
+            ToyAPI = (IAdultToyAPI)adultToyAPI;
+            ToyAPI.DeviceAdded += ToyAPI_DeviceAdded;
+            ToyAPI.DeviceRemoved += ToyAPI_DeviceRemoved;
+            ToyAPI.ErrorReceived += ToyAPI_ErrorReceived;
+            ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
+            ToyAPI.ServerConnected += ToyAPI_ServerConnected;
+
+            Binder.SetButtplugClient(ToyAPI);
+
+            Util.Info($"CVRGoesBrrr is starting up! AdultToyAPI {adultToyAPI.Info.Version} is detected!");
 
             MelonPreferences.CreateCategory(BuildInfo.Name, "CVR Goes Brrr~");
             MelonPreferences.CreateEntry(BuildInfo.Name, "Active", Active, "Active");
@@ -129,7 +137,6 @@ namespace CVRGoesBrrr
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentConstrict", IntensityCurveExponentOscillate, "Intensity Curve Exponent for Constriction Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentPosition", IntensityCurveExponentPosition, "Intensity Curve Exponent for Position Motor");
             MelonPreferences.CreateEntry(BuildInfo.Name, "IntensityCurveExponentInflate", IntensityCurveExponentInflate, "Intensity Curve Exponent for Inflation Motor");
-            MelonPreferences.CreateEntry(BuildInfo.Name, "UseBackgroundThreads", true, "Use Background Threads");
             OnPreferencesSaved();
 
             // this.HarmonyInstance.PatchAll();
@@ -181,44 +188,15 @@ namespace CVRGoesBrrr
 
         private void BackgroundProcessingTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (Util.BackgroundThreadsAllowed)
-            {
-                InternalLoop();
-            }
-        }
-        private void InternalLoop()
-        {
-            if (ToyAPI == null)
-            {
-                foreach (var melon in MelonMod.RegisteredMelons)
-                {
-                    if (melon is IAdultToyAPI)
-                    {
-                        ToyAPI = (IAdultToyAPI)melon;
-                        ToyAPI.DeviceAdded += ToyAPI_DeviceAdded;
-                        ToyAPI.DeviceRemoved += ToyAPI_DeviceRemoved;
-                        ToyAPI.ErrorReceived += ToyAPI_ErrorReceived;
-                        ToyAPI.ServerDisconnect += ToyAPI_ServerDisconnect;
-                        ToyAPI.ServerConnected += ToyAPI_ServerConnected;
-
-                        Binder.SetButtplugClient(ToyAPI);
-                    }
-                }
-            }
-            if (ToyAPI == null)
-            {
-                return;
-            }
             Util.StartTimer("Computation Time");
-            lock (ProcessingLock)
+            if (Active)
             {
-                if (Active)
-                {
-                    ProcessSensorsAndVibrateDevices();
-                }
+                //This is background thread safe, no functions touch Unity objects
+                ProcessSensorsAndVibrateDevices();
             }
             Util.StopTimer("Computation Time", 25);
         }
+
         private void ToyAPI_ServerConnected(object sender, ServerConnectedEventArgs e)
         {
             try
@@ -617,92 +595,91 @@ namespace CVRGoesBrrr
         private void CalculateHandTouchFeedback(HashSet<Sensor> activeSensors)
         {
             // Calculate and send touch feedback
-            if (TouchFeedbackEnabled && CVREventProcessor.LocalAvatar != null)
+            if (!TouchFeedbackEnabled || PlayerSetup.Instance?._avatar == null) return;
+
+            foreach (var sensor in FeedbackSensors)
             {
-                foreach (var sensor in FeedbackSensors)
+                if (!sensor.Active) continue;
+
+                float minDistance = 0f;
+
+                if (sensor is TouchSensor)
                 {
-                    if (!sensor.Active) continue;
+                    var touchSensor = sensor as TouchSensor;
+                    minDistance = touchSensor.Camera.orthographicSize * 4;
+                }
+                else if (sensor is Giver)
+                {
+                    var giver = sensor as Giver;
+                    minDistance = giver.Length;
+                }
+                else
+                {
+                    continue;
+                }
 
-                    float minDistance = 0f;
+                float leftDistance = float.MaxValue;
+                float rightDistance = float.MaxValue;
+                Animator playerLocalAvatarAnimator = PlayerSetup.Instance._animator;
+                if (playerLocalAvatarAnimator != null)
+                {
+                    var leftHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.LeftHand);
+                    if (leftHand != null)
+                    {
+                        leftDistance = Vector3.Distance(sensor.GameObject.transform.position, leftHand.position);
+                    }
+                    else
+                    {
+                        Util.Error("Unable to find player left hand to calculate touch feedback");
+                    }
+                    var rightHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.RightHand);
+                    if (rightHand != null)
+                    {
+                        rightDistance = Vector3.Distance(sensor.GameObject.transform.position, rightHand.position);
+                    }
+                    else
+                    {
+                        Util.Error("Unable to find player right hand to calculate touch feedback");
+                    }
+                }
+                else
+                {
+                    Util.Error("Unable to find player Avatar to calculate touch feedback");
+                }
 
+                if (leftDistance <= minDistance || rightDistance <= minDistance)
+                {
                     if (sensor is TouchSensor)
                     {
                         var touchSensor = sensor as TouchSensor;
-                        minDistance = touchSensor.Camera.orthographicSize * 4;
-                    }
-                    else if (sensor is Giver)
-                    {
-                        var giver = sensor as Giver;
-                        minDistance = giver.Length;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-
-                    float leftDistance = float.MaxValue;
-                    float rightDistance = float.MaxValue;
-                    Animator playerLocalAvatarAnimator = CVREventProcessor.LocalAvatar.GetComponentInChildren<Animator>();
-                    if (playerLocalAvatarAnimator != null)
-                    {
-                        var leftHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.LeftHand);
-                        if (leftHand != null)
+                        int playerNetworkMask = CVRLayersUtil.LayerToCullingMask(CVRLayers.PlayerNetwork);
+                        if (SetupMode)
                         {
-                            leftDistance = Vector3.Distance(sensor.GameObject.transform.position, leftHand.position);
+                            touchSensor.Camera.cullingMask |= playerNetworkMask;
                         }
                         else
                         {
-                            Util.Error("Unable to find player left hand to calculate touch feedback");
-                        }
-                        var rightHand = playerLocalAvatarAnimator.GetBoneTransform(HumanBodyBones.RightHand);
-                        if (rightHand != null)
-                        {
-                            rightDistance = Vector3.Distance(sensor.GameObject.transform.position, rightHand.position);
-                        }
-                        else
-                        {
-                            Util.Error("Unable to find player right hand to calculate touch feedback");
+                            touchSensor.Camera.cullingMask = playerNetworkMask;
                         }
                     }
-                    else
+
+                    sensor.Enabled = true;
+
+                    float intensity = sensor.Value;
+                    if (intensity > 0f)
                     {
-                        Util.Error("Unable to find player Avatar to calculate touch feedback");
-                    }
-
-                    if (leftDistance <= minDistance || rightDistance <= minDistance)
-                    {
-                        if (sensor is TouchSensor)
+                        if (leftDistance <= minDistance)
                         {
-                            var touchSensor = sensor as TouchSensor;
-                            int playerNetworkMask = CVRLayersUtil.LayerToCullingMask(CVRLayers.PlayerNetwork);
-                            if (SetupMode)
-                            {
-                                touchSensor.Camera.cullingMask |= playerNetworkMask;
-                            }
-                            else
-                            {
-                                touchSensor.Camera.cullingMask = playerNetworkMask;
-                            }
+                            CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Left);
                         }
 
-                        sensor.Enabled = true;
-
-                        float intensity = sensor.Value;
-                        if (intensity > 0f)
+                        if (rightDistance <= minDistance)
                         {
-                            if (leftDistance <= minDistance)
-                            {
-                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Left);
-                            }
-
-                            if (rightDistance <= minDistance)
-                            {
-                                CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Right);
-                            }
+                            CVRHooks.VibratePlayerHands(0, .5f, 440, 5 + 20 * intensity, CVRHand.Right);
                         }
-
-                        activeSensors.Add(sensor);
                     }
+
+                    activeSensors.Add(sensor);
                 }
             }
         }
@@ -784,7 +761,6 @@ namespace CVRGoesBrrr
             bool setupMode = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "SetupMode");
             Util.Debug = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "Debug");
             Util.DebugPerformance = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "DebugPerformance");
-            Util.BackgroundThreadsAllowed = MelonPreferences.GetEntryValue<bool>(BuildInfo.Name, "UseBackgroundThreads");
             CreateBackgroundProcessingTimer();
             if (!SetupMode && setupMode)
             {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using ABI_RC.Core.Player;
 using ABI.CCK.Components;
 using CVRGoesBrrr.CVRIntegration;
 using UnityEngine;
@@ -20,12 +21,24 @@ namespace CVRGoesBrrr
 
         public TouchZoneProvider()
         {
-            CVREventProcessor.AvatarIsReady += OnAvatarIsReady;
+            CVRHooks.RemoteAvatarIsReady += RemoteAvatarIsReady;
+            CVRHooks.LocalAvatarIsReady += LocalAvatarIsReady;
+        }
+
+        private void LocalAvatarIsReady()
+        {
+            SetupSensors(PlayerSetup.Instance._avatar, true);
+        }
+
+        private void RemoteAvatarIsReady(PuppetMaster puppetMaster, PlayerDescriptor playerDescriptor)
+        {
+            SetupSensors(puppetMaster.avatarObject, false);
         }
 
         public void Dispose()
         {
-            CVREventProcessor.AvatarIsReady -= OnAvatarIsReady;
+            CVRHooks.RemoteAvatarIsReady -= RemoteAvatarIsReady;
+            CVRHooks.LocalAvatarIsReady -= LocalAvatarIsReady;
         }
 
         public void OnSceneWasInitialized()
@@ -69,15 +82,15 @@ namespace CVRGoesBrrr
             }
         }
 
-        private void OnAvatarIsReady(object sender, AvatarEventArgs args)
+        private void SetupSensors(GameObject avatarRoot, bool isLocal)
         {
-            foreach (var camera in args.Avatar.GetComponentsInChildren<Camera>(true))
+            foreach (var camera in avatarRoot.GetComponentsInChildren<Camera>(true))
             {
                 if (IsSensor(camera))
                 {
                     if (!mSensorInstances.ContainsKey(camera.GetInstanceID()))
                     {
-                        var newSensor = new TouchSensor(camera.name, args.Avatar == CVREventProcessor.LocalAvatar ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer, camera);
+                        var newSensor = new TouchSensor(camera.name, isLocal ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer, camera);
                         mSensorInstances[camera.GetInstanceID()] = newSensor;
                         SensorDiscovered?.Invoke(this, newSensor);
                     }
