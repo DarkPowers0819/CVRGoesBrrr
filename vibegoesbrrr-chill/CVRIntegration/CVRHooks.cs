@@ -8,6 +8,7 @@ using ABI_RC.Systems.InputManagement;
 using ABI_RC.Core;
 using ABI_RC.Systems.GameEventSystem;
 using ABI_RC.Systems.IK.SubSystems;
+using UnityEngine;
 
 namespace CVRGoesBrrr.CVRIntegration
 {
@@ -18,7 +19,7 @@ namespace CVRGoesBrrr.CVRIntegration
     {
         public static Action LocalAvatarIsReady;
         public static Action<PuppetMaster, PlayerDescriptor> RemoteAvatarIsReady;
-        public static Action<CVRSpawnable> PropIsReady;
+        public static Action<GameObject> PropIsReady;
         public static Action<CVRAttachment> PropAttached;
         public static Action<CVRAttachment> PropDettached;
 
@@ -40,7 +41,7 @@ namespace CVRGoesBrrr.CVRIntegration
                 foreach (var item in attachments)
                 {
                     Util.DebugLog($"Prop Instantiated, adding events to CVRAttachment component! GUID: {propSpawnable.guid} | Name: {propSpawnable.name}");
-
+                    Util.DebugLog($"attachement id {item.gameObject.GetInstanceID()} found on spawnable {propSpawnable.gameObject.GetInstanceID()}");
                     item.onAttach.AddListener(() =>
                     {
                         PropAttached?.Invoke(item);
@@ -50,10 +51,13 @@ namespace CVRGoesBrrr.CVRIntegration
                     {
                         PropDettached?.Invoke(item);
                     });
+                    PropIsReady?.Invoke(item.gameObject);
                 }
             }
-
-            PropIsReady?.Invoke(propSpawnable);
+            else
+            {
+                PropIsReady?.Invoke(propSpawnable.gameObject);
+            }
         }
 
         /// <summary>

@@ -68,11 +68,11 @@ namespace CVRGoesBrrr
             CVRHooks.PropAttached -= CVRHooks_PropAttached;
             CVRHooks.PropDettached -= CVRHooks_PropDettached;
         }
-        private void OnPropIsReady(CVRSpawnable prop)
+        private void OnPropIsReady(GameObject prop)
         {
             foreach (var light in prop.GetComponentsInChildren<Light>(true))
             {
-                MatchDPSLight(light, SensorOwnerType.World);
+                MatchDPSLight(light, SensorOwnerType.World,prop);
             }
             foreach (var gameObject in prop.GetComponentsInChildren<GameObject>(true))
             {
@@ -96,7 +96,7 @@ namespace CVRGoesBrrr
 
                 if (sceneName != "AdditiveContentScene" && sceneName != "DontDestroyOnLoad" && sceneName != "HideAndDontSave")
                 {
-                    MatchDPSLight(light, SensorOwnerType.World);
+                    MatchDPSLight(light, SensorOwnerType.World,null);
                 }
             }
             foreach (var gameObject in Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[])
@@ -116,7 +116,7 @@ namespace CVRGoesBrrr
             GameObject[] gameObjects = avatarRoot.GetComponentsInChildren<GameObject>(true);
             foreach (var light in lights)
             {
-                MatchDPSLight(light, isLocal ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer);
+                MatchDPSLight(light, isLocal ? SensorOwnerType.LocalPlayer : SensorOwnerType.RemotePlayer,null);
             }
             foreach (var gameObject in gameObjects)
             {
@@ -124,13 +124,16 @@ namespace CVRGoesBrrr
             }
         }
 
-        private void MatchDPSLight(Light light, SensorOwnerType sensorType)
+        private void MatchDPSLight(Light light, SensorOwnerType sensorType, GameObject prop)
         {
             if (DPSLightId(light, DPSPenetrator.TipID) || DPSLightId(light, DPSPenetrator.TipID_ZawooCompat))
             {
                 // Step up the hierarchy until we find an object with a mesh as child
                 GameObject root = light.gameObject;
-
+                if (prop != null)
+                {
+                    root = prop;
+                }
                 SkinnedMeshRenderer skinnedMeshRenderer = root.GetComponentInChildren<SkinnedMeshRenderer>(true);
                 MeshRenderer meshRenderer = root.GetComponentInChildren<MeshRenderer>(true);
 
@@ -171,6 +174,10 @@ namespace CVRGoesBrrr
             else if (DPSLightId(light, DPSOrifice.MiddleID) || DPSLightId(light, DPSOrifice.EntranceID_A) || DPSLightId(light, DPSOrifice.EntranceID_B))
             {
                 var gameObject = light.gameObject.transform.parent.gameObject;
+                if (prop != null)
+                {
+                    gameObject = prop;
+                }
                 DPSOrifice orifice;
                 if (!mTakers.ContainsKey(gameObject.GetInstanceID()))
                 {
