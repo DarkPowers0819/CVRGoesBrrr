@@ -26,6 +26,6 @@ namespace CVRGoesBrrr
         /// <summary>
         /// Where to download new versions of the mod
         /// </summary>
-        public const string DownloadLink = "https://discord.gg/Pkac4ws4yj";
+        public const string DownloadLink = "https://github.com/DarkPowers0819/CVRGoesBrrr/raw/main/vibegoesbrrr-chill/bin/release/x64/CVRGoesBrrr.dll";
     }
 }
