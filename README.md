@@ -25,20 +25,16 @@ this is a mod to let you use your toys based on actions in CVR.\
 - Touch Vibrations: (bool) enables the use of the Orthographic Cameras to sense avatars touching
 - Thrust Vibrations: (bool) enables the use of DPS objects
 - JustUseMyToys: (bool) when enabled CVR Goes Brrr will ignore the "type" (giver/taker) of devices and will bind them to any sensor
-- Audio Vibrations: (bool) not yet implemented
 - Touch Feedback: (bool) when enabled this will cause your controllers to vibrate when in proximity to a DPS or touch zone
 - Idle Vibrations: (bool) enable the Idle Vibrations
 - Idle Vibration Intensity %: (float) sets the Idle Vibration level
 - Min Vibration Intensity %: (float) not yet implemented)
 - Max Vibration Intensity %: (float) sets the maximum vibration level
-- Expression Parameters Enabled: (bool) not yet implemented
+- Expression Parameters Enabled: (bool) Use this to drive avatar parameters. This will attempt to drive avatar parameters based on the name of the DPS object. Enabling debug will print the exact names it's looking for.
 - Setup Mode: (bool) drives some legacy functions such as allowing you to trigger your own touch zones for testing.
 - Debug: (bool) enables debug logging which my be useful when issues are encountered.
 - Debug Performance: (bool) enables logging of performance indicators. Mostly for development and testing.
 - Update Frequency: (float) the frequency of how often to update vibrations (unit for this is Hz)
 - Intensity Curve Exponent: (float) an exponent that can be applied to the virtual 'sensors' to increase the vibration intensity.
-- XSOverlay Notifications: (bool) not yet implemented
-- Scan Duration: (float) needs to be removed
-- Scan Wait Duration: (float) needs to be removed
 ## Recomendations
 I Highly recomend using an Intel Bluetooth 5.0 or better adapter. The Lovense dongle, while functional, has limitations. If you have a lovense dongle and want to use it then make use to set the update fequency to something low like 15 or lower. Additionaly you will want to set the DeviceCommandTimeInterval to something like 50-100 milliseconds. Using more aggressive settings may cause the dongle to timeout and lose connection.
