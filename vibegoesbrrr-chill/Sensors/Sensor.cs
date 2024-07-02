@@ -56,7 +56,7 @@ namespace CVRGoesBrrr
 
         internal string GetParameterName()
         {
-            if(string.IsNullOrEmpty(SafeName))
+            if(string.IsNullOrEmpty(SafeName) && GameObject!=null)
             {
                 Regex rgx = new Regex("[^a-zA-Z0-9 #]");
                 SafeName = rgx.Replace(GameObject.name, "");

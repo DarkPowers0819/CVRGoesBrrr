@@ -41,7 +41,10 @@ namespace CVRGoesBrrr
             mMesh = mesh;
             // Calculate penetrator length based on mesh bounds z
             // We can't use _Length, since it seems to be off by a lot
-            mBaseLength = CalculateGiverMeshLength(mMesh);
+            Task.Run(() =>
+            {
+                mBaseLength = CalculateGiverMeshLength(mMesh);
+            });
             // mBaseLength = meshObject.GetComponent<Renderer>().sharedMaterial.GetFloat("_Length"); 
         }
 
