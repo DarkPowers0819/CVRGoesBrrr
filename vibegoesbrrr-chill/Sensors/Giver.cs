@@ -13,7 +13,7 @@ namespace CVRGoesBrrr
         public static Regex Pattern = new Regex(@"^\s*?(Thrust\s*Vector)\s*(.*)$", RegexOptions.IgnoreCase);
 
         public float mValue;
-        public float mBaseLength;
+        public float mBaseLength=-10;
         public GameObject mMeshObject;
         public Mesh mMesh;
 
@@ -21,6 +21,10 @@ namespace CVRGoesBrrr
         {
             get
             {
+                if (mBaseLength < -1)
+                {
+                    mBaseLength = CalculateGiverMeshLength(mMesh);
+                }
                 float forwardMagnitude = mMeshObject.transform.TransformVector(Vector3.forward).magnitude;
                 //Util.DebugLog("Giver is on Layer="+this.mMeshObject.layer);
                 return mBaseLength * forwardMagnitude;
@@ -39,13 +43,6 @@ namespace CVRGoesBrrr
             mGameObject = gameObject;
             mMeshObject = meshObject;
             mMesh = mesh;
-            // Calculate penetrator length based on mesh bounds z
-            // We can't use _Length, since it seems to be off by a lot
-            Task.Run(() =>
-            {
-                mBaseLength = CalculateGiverMeshLength(mMesh);
-            });
-            // mBaseLength = meshObject.GetComponent<Renderer>().sharedMaterial.GetFloat("_Length"); 
         }
 
         public override GameObject GameObject => mGameObject;
@@ -54,6 +51,7 @@ namespace CVRGoesBrrr
 
         /// <summary>
         /// based on how DPS sets up penetrator we can assume the furthest forward vertex has the highest Z value.
+        /// another benefit of DPS is that anything in -Z is not bendable, so usable lenght is the same as the greatest z value.
         /// </summary>
         /// <param name="mesh"></param>
         /// <returns></returns>
