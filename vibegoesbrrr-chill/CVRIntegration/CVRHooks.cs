@@ -68,7 +68,7 @@ namespace CVRGoesBrrr.CVRIntegration
         {
             Util.StartTimer("OnLocalAvatarLoad");
             LocalAvatarIsReady?.Invoke();
-            Util.StopTimer("OnLocalAvatarLoad", 0);
+            Util.StopTimer("OnLocalAvatarLoad", 4);
         }
         /// <summary>
         /// 
