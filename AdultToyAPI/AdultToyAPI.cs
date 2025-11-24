@@ -69,7 +69,6 @@ namespace AdultToyAPI
 
         public override void OnLateInitializeMelon()
         {
-            base.OnLateInitializeMelon();
             try
             {
                 InitSettings();
@@ -79,7 +78,7 @@ namespace AdultToyAPI
             }
             catch(Exception e)
             {
-                MelonLoader.MelonLogger.Error("Error During Initialization", e);
+                LoggerInstance.Error("Error During Initialization", e);
             }
         }
         private void ExportIntifaceCLI()

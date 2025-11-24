@@ -22,10 +22,10 @@ namespace CVRGoesBrrr
         /// <summary>
         /// Version of the Mod
         /// </summary>
-        public const string Version = "0.1.3";
+        public const string Version = "0.1.5-experimental";
         /// <summary>
         /// Where to download new versions of the mod
         /// </summary>
-        public const string DownloadLink = "https://discord.gg/Pkac4ws4yj";
+        public const string DownloadLink = "";
     }
 }

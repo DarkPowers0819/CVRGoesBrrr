@@ -1,34 +1,37 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Reflection;
 using ABI_RC.Core.Player;
+using MelonLoader;
 using UnityEngine;
 
 namespace CVRGoesBrrr
 {
     static class Util
     {
+        public static MelonLogger.Instance Logger;
         public static bool Debug;
         public static bool DebugPerformance;
-        public static bool BackgroundThreadsAllowed;
         private static ConcurrentDictionary<string, DateTime> Timers = new ConcurrentDictionary<string, DateTime>();
+        private static FieldInfo _getPlayerDescriptor = typeof(PuppetMaster).GetField("_playerDescriptor", BindingFlags.Instance | BindingFlags.NonPublic);
         public static void DebugLog(string message)
         {
             if (Debug)
             {
-                MelonLoader.MelonLogger.Msg(System.ConsoleColor.Cyan, "[DEBUG] " + message);
+                Logger.Msg(System.ConsoleColor.Cyan, "[DEBUG] " + message);
             }
         }
         public static void Warn(string message)
         {
-            MelonLoader.MelonLogger.Warning(message);
+            Logger.Warning(message);
         }
         public static void Info(string message)
         {
-            MelonLoader.MelonLogger.Msg(System.ConsoleColor.White, "[INFO] " + message);
+            Logger.Msg(System.ConsoleColor.White, "[INFO] " + message);
         }
         public static void Error(string message)
         {
-            MelonLoader.MelonLogger.Error(message);
+            Logger.Error(message);
         }
         public static bool AlmostEqual(double a, double b)
         {
@@ -52,6 +55,11 @@ namespace CVRGoesBrrr
             }
 
             return false;
+        }
+
+        public static PlayerDescriptor GetPlayerDescriptor(this PuppetMaster pm)
+        {
+            return (PlayerDescriptor)_getPlayerDescriptor.GetValue(pm);
         }
 
         // Since there is no GetComponentInParent that gets inactive components...
