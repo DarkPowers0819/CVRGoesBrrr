@@ -399,10 +399,11 @@ namespace AdultToyAPI
             {
                 newIntifaceServerURI = "ws:\\localhost"; // attempting to work around an issue where mellon preferences may not initialize correctly
             }
-            if(!string.Equals(IntifaceServerURI,newIntifaceServerURI))
+            if (!string.Equals(IntifaceServerURI,newIntifaceServerURI) && Buttplug!=null)
             {
                 Task t = Buttplug.DisconnectAsync();
             }
+            IntifaceServerURI = newIntifaceServerURI;
             SecondsBetweenConnectionAttempts = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "SecondsBetweenConnectionAttempts");
             DeviceCommandTimeInterval = MelonPreferences.GetEntryValue<int>(BuildInfo.Name, "DeviceCommandTimeInterval");
             DeviceCommandTimeInterval = Clamp(DeviceCommandTimeInterval, 1, 100);
