@@ -34,12 +34,12 @@ namespace CVRGoesBrrr
 
         private void RemoteAvatarIsReady(PuppetMaster puppetMaster, PlayerDescriptor playerDescriptor)
         {
-            ScanAvatarHierarchy(puppetMaster.avatarObject, false);
+            ScanAvatarHierarchy(puppetMaster.AvatarObject, false);
         }
 
         private void LocalAvatarIsReady()
         {
-            ScanAvatarHierarchy(PlayerSetup.Instance._avatar, true);
+            ScanAvatarHierarchy(PlayerSetup.Instance.AvatarObject, true);
         }
 
         private void CVRHooks_PropDettached(CVRAttachment attachment)

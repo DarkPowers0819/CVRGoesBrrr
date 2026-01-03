@@ -37,6 +37,6 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyFileVersion("1.0.*")]
 
 [assembly: MelonInfo(typeof(AdultToyAPI.AdultToyAPI), "AdultToyAPI", "0.1.0", "DarkPowers", "https://github.com/DarkPowers0819/CVRGoesBrrr/raw/main/AdultToyAPI/bin/Release/AdultToyAPI.dll")]
-[assembly: MelonGame("Alpha Blend Interactive", "ChilloutVR")]
+[assembly: MelonGame("ChilloutVR", "ChilloutVR")]
 //Forces AdultToyAPI to be started first, this will allow others to check immediately upon startup.
 [assembly: MelonPriority(-10)]

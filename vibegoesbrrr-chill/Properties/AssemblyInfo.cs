@@ -37,4 +37,4 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyFileVersion(VibeGoesBrrr.BuildInfo.Version)]
 
 [assembly: MelonInfo(typeof(CVRGoesBrrr.CVRGoesBrrrMod), CVRGoesBrrr.BuildInfo.Name, CVRGoesBrrr.BuildInfo.Version, CVRGoesBrrr.BuildInfo.Author, CVRGoesBrrr.BuildInfo.DownloadLink)]
-[assembly: MelonGame("Alpha Blend Interactive", "ChilloutVR")]
+[assembly: MelonGame("ChilloutVR", "ChilloutVR")]

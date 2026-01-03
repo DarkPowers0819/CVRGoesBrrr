@@ -29,7 +29,7 @@ namespace CVRGoesBrrr.CVRIntegration
             CVRGameEventSystem.Spawnable.OnInstantiate.AddListener(OnPropInstantiated);
 
             harmony.Patch(typeof(BodySystem).GetMethod(nameof(BodySystem.InitializeAvatar), BindingFlags.Public | BindingFlags.Instance), postfix: new HarmonyMethod(typeof(CVRHooks).GetMethod(nameof(OnLocalAvatarLoad), BindingFlags.NonPublic | BindingFlags.Static)));
-            harmony.Patch(typeof(PuppetMaster).GetMethod(nameof(PuppetMaster.AvatarInstantiated), BindingFlags.Public | BindingFlags.Instance), postfix: new HarmonyMethod(typeof(CVRHooks).GetMethod(nameof(OnRemoteAvatarLoad), BindingFlags.NonPublic | BindingFlags.Static)));
+            harmony.Patch(typeof(PuppetMaster).GetMethod("OnSetupAvatar"), postfix: new HarmonyMethod(typeof(CVRHooks).GetMethod(nameof(OnRemoteAvatarLoad), BindingFlags.NonPublic | BindingFlags.Static)));
         }
 
         private static void OnPropInstantiated(string spawnedBy, CVRSpawnable propSpawnable)
@@ -78,7 +78,7 @@ namespace CVRGoesBrrr.CVRIntegration
         {
             Util.StartTimer("OnRemoteAvatarLoad");
             var descriptor = __instance.GetPlayerDescriptor();
-            Util.DebugLog($"RemoteAvatarLoad fired - Username: {descriptor.userName} | Name: {__instance.avatarObject.name}");
+            Util.DebugLog($"RemoteAvatarLoad fired - Username: {descriptor.userName} | Name: {__instance.AvatarObject.name}");
             RemoteAvatarIsReady.Invoke(__instance, descriptor);
             Util.StopTimer("OnRemoteAvatarLoad", 2);
         }
@@ -98,11 +98,11 @@ namespace CVRGoesBrrr.CVRIntegration
         public static void SetAdvancedAvatarParameter(string parameterName, float intensityValue)
         {
             Util.DebugLog($"checking if Avatar parameter {parameterName} exists");
-            bool parameterExists = PlayerSetup.Instance.animatorManager.Parameters.Select((c)=>c.Value.name).Contains(parameterName);
+            bool parameterExists = PlayerSetup.Instance.AnimatorManager.Parameters.Select((c)=>c.Value.name).Contains(parameterName);
             if (parameterExists)
             {
                 Util.DebugLog($"setting Avatar parameter {parameterName} to {intensityValue}");
-                PlayerSetup.Instance.changeAnimatorParam(parameterName, intensityValue);
+                PlayerSetup.Instance.ChangeAnimatorParam(parameterName, intensityValue);
             }
         }
     }

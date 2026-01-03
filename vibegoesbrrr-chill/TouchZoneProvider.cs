@@ -27,12 +27,12 @@ namespace CVRGoesBrrr
 
         private void LocalAvatarIsReady()
         {
-            SetupSensors(PlayerSetup.Instance._avatar, true);
+            SetupSensors(PlayerSetup.Instance.AvatarObject, true);
         }
 
         private void RemoteAvatarIsReady(PuppetMaster puppetMaster, PlayerDescriptor playerDescriptor)
         {
-            SetupSensors(puppetMaster.avatarObject, false);
+            SetupSensors(puppetMaster.AvatarObject, false);
         }
 
         public void Dispose()
